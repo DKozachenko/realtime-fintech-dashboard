@@ -52,8 +52,8 @@ impl Market {
         let mut rng = Pcg32::seed_from_u64(seed);
         let instruments = (0..instrument_count)
             .map(|_| {
-                let mid = range_inclusive(&mut rng, START_PRICE_MIN_CENTS, START_PRICE_MAX_CENTS)
-                    as f64;
+                let mid =
+                    range_inclusive(&mut rng, START_PRICE_MIN_CENTS, START_PRICE_MAX_CENTS) as f64;
                 Instrument {
                     mid,
                     anchor: mid,
@@ -71,6 +71,12 @@ impl Market {
 
     /// Returns `size * FIELDS_PER_UPDATE` values:
     /// `[index, price, tradeQty, bid, ask, bidQty, askQty]` per update.
+    /// Pointer to the output buffer. Capacity is reserved up front, so it stays
+    /// stable across batches.
+    pub fn batch_ptr(&self) -> *const u32 {
+        self.buffer.as_ptr()
+    }
+
     pub fn next_batch(&mut self, size: u32) -> Result<&[u32], GeneratorError> {
         if !(1..=MAX_BATCH_SIZE).contains(&size) {
             return Err(GeneratorError::BatchSize(size));

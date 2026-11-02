@@ -2,8 +2,10 @@
   "name": "realtime-fintech-dashboard",
   "version": "0.0.0",
   "scripts": {
-    "start": "ng serve",
-    "build": "ng build",
+    "start": "npm run build:wasm && ng serve",
+    "build": "npm run build:wasm && ng build",
+    "build:wasm": "wasm-pack build generator --target web --release --out-dir ../src/wasm/generator --out-name generator",
+    "test:wasm": "cargo test --manifest-path generator/Cargo.toml",
     "test": "ng test --watch=false --browsers=ChromeHeadlessCI"
   },
   "private": true,

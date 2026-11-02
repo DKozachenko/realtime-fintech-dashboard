@@ -26,6 +26,11 @@
               {
                 "glob": "**/*",
                 "input": "public"
+              },
+              {
+                "glob": "generator_bg.wasm",
+                "input": "src/wasm/generator",
+                "output": "wasm"
               }
             ],
             "styles": [
