@@ -2,12 +2,9 @@
   "name": "realtime-fintech-dashboard",
   "version": "0.0.0",
   "scripts": {
-    "ng": "ng",
     "start": "ng serve",
     "build": "ng build",
-    "watch": "ng build --watch --configuration development",
-    "test": "ng test",
-    "test:ci": "ng test --watch=false --browsers=ChromeHeadlessCI"
+    "test": "ng test --watch=false --browsers=ChromeHeadlessCI"
   },
   "private": true,
   "dependencies": {
@@ -19,8 +16,7 @@
     "@angular/platform-browser-dynamic": "19.2.25",
     "@angular/router": "19.2.25",
     "rxjs": "7.8.2",
-    "tslib": "2.9.1",
-    "zone.js": "0.15.1"
+    "tslib": "2.9.1"
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "19.2.27",
