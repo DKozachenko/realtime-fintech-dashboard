@@ -1,0 +1,211 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Dashboard mockup</title>
+<style>:root{--bg-secondary:#0b1c16;--border:#1a3329;--accent:#1d7a54;--text-secondary:#7e9b8d}body{margin:0;padding:24px 16px;background:#06110d;color:#e3efe8;font-family:Manrope,system-ui,sans-serif}.subtitle{color:#7e9b8d}.option{margin-bottom:36px}</style>
+<script>function toggleSelect(){}</script></head><body>
+<h2>Dashboard: two options (B chosen)</h2>
+<p class="subtitle">Live data from a fake generator that follows the planned model: 5 instruments, 100 updates every 500 ms. The control desk changes the render rate and shows the initializing and error states.</p>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap');
+.fx{--ink:#06110d;--panel:#0b1c16;--panel2:#0f241c;--line:#1a3329;--text:#e3efe8;--muted:#7e9b8d;--mint:#8fe3b6;--rose:#ee8a96;--amber:#e9c46a;
+  --moss:linear-gradient(120deg,#0b2f22 0%,#125238 55%,#1d7a54 100%);
+  font-family:Manrope,system-ui,sans-serif;color:var(--text);background:var(--ink);border-radius:14px;overflow:hidden;border:1px solid var(--line);
+  font-variant-numeric:tabular-nums;margin-bottom:28px}
+.fx *{box-sizing:border-box}
+.fx button{font:inherit;cursor:pointer}
+.fx button:focus-visible{outline:2px solid var(--mint);outline-offset:2px}
+.fx .num{text-align:right;white-space:nowrap}
+.fx table{width:100%;border-collapse:collapse;font-size:14px}
+.fx th{font-weight:600;color:var(--muted);font-size:12.5px;padding:10px 16px;text-align:right;border-bottom:1px solid var(--line)}
+.fx th:first-child,.fx td:first-child{text-align:left}
+.fx td{padding:11px 16px;border-bottom:1px solid var(--line);transition:color .5s}
+.fx tr:last-child td{border-bottom:none}
+.fx .sym{font-weight:800;letter-spacing:.06em}
+.fx .na{color:var(--muted)}
+.fx .up{color:var(--mint);transition:none}
+.fx .down{color:var(--rose);transition:none}
+.fx .dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:7px;vertical-align:1px}
+.fx .running .dot{background:var(--mint);box-shadow:0 0 0 0 rgba(143,227,182,.6);animation:pulse 1.6s infinite}
+.fx .paused .dot{background:var(--amber)}
+.fx .init .dot{background:var(--muted)}
+.fx .error .dot{background:var(--rose)}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(143,227,182,.55)}70%{box-shadow:0 0 0 7px rgba(143,227,182,0)}100%{box-shadow:0 0 0 0 rgba(143,227,182,0)}}
+@media (prefers-reduced-motion:reduce){.fx .running .dot{animation:none}}
+.fx .btn{border:1px solid #2c5a47;background:transparent;color:var(--text);padding:7px 16px;border-radius:8px;font-weight:600}
+.fx .btn:hover{background:#12291f}
+.fx .btn-primary{background:var(--moss);border-color:#2a8a60}
+.fx .banner{margin:14px 16px 0;padding:12px 14px;border-radius:10px;background:#2a1216;border:1px solid #5a2a32;color:#f5c9cf;font-size:13.5px;display:none}
+.fx .banner b{color:#fff}
+.fx.is-error .banner{display:flex;gap:12px;align-items:center;justify-content:space-between}
+
+/* ---- A: top bar ---- */
+.fx-a .top{display:flex;align-items:center;gap:28px;padding:14px 20px;border-bottom:1px solid var(--line);background:var(--panel)}
+.fx-a .brand{font-weight:800;font-size:15px;display:flex;align-items:center;gap:9px}
+.fx-a .mark{width:22px;height:22px;border-radius:6px;background:var(--moss)}
+.fx-a nav{display:flex;gap:4px}
+.fx-a nav a{color:var(--muted);text-decoration:none;font-weight:600;font-size:14px;padding:6px 12px;border-radius:7px}
+.fx-a nav a.on{color:var(--text);background:#12291f}
+.fx-a .right{margin-left:auto;display:flex;align-items:center;gap:16px;font-size:13.5px}
+.fx-a .head{padding:22px 20px 14px;display:flex;align-items:baseline;gap:18px;flex-wrap:wrap}
+.fx-a h1{margin:0;font-size:22px;font-weight:800;letter-spacing:-.01em}
+.fx-a .meta{color:var(--muted);font-size:13.5px}
+.fx-a .tablewrap{margin:0 20px 20px;border:1px solid var(--line);border-radius:12px;background:var(--panel);overflow-x:auto}
+
+/* ---- B: rail + gradient band ---- */
+.fx-b{display:grid;grid-template-columns:64px 1fr}
+.fx-b .rail{background:var(--panel);border-right:1px solid var(--line);display:flex;flex-direction:column;align-items:center;padding:16px 0;gap:10px}
+.fx-b .rail .mark{width:30px;height:30px;border-radius:9px;background:var(--moss);margin-bottom:10px}
+.fx-b .rail a{width:40px;height:40px;border-radius:10px;display:grid;place-items:center;color:var(--muted)}
+.fx-b .rail a.on{background:#12291f;color:var(--mint)}
+.fx-b .band{background:var(--moss);padding:22px 24px;display:grid;grid-template-columns:1fr auto;gap:18px;align-items:center}
+.fx-b .band h1{margin:0 0 6px;font-size:24px;font-weight:800;letter-spacing:-.01em}
+.fx-b .stats{display:flex;gap:26px;font-size:13px;color:#cfe8dc;flex-wrap:wrap}
+.fx-b .stats b{display:block;color:#fff;font-size:17px;font-weight:700}
+.fx-b .band .btn{background:rgba(6,17,13,.35);border-color:rgba(255,255,255,.25)}
+.fx-b .tablewrap{padding:6px 8px 12px;overflow-x:auto}
+.fx-b .imb{display:flex;align-items:center;justify-content:flex-end;gap:10px}
+.fx-b .bar{width:84px;height:6px;border-radius:3px;background:#173126;position:relative}
+.fx-b .bar::after{content:'';position:absolute;left:50%;top:-3px;width:1px;height:12px;background:#3a6151}
+.fx-b .bar i{position:absolute;top:0;height:100%;border-radius:3px}
+.fx-b .arrow{display:inline-block;width:12px;font-size:10px}
+
+/* ---- control desk ---- */
+.desk{display:flex;flex-wrap:wrap;gap:18px;align-items:center;padding:14px 16px;border-radius:12px;background:var(--bg-secondary);border:1px solid var(--border);margin-bottom:20px;font-size:14px}
+.desk .seg{display:inline-flex;border:1px solid var(--border);border-radius:8px;overflow:hidden}
+.desk .seg button{border:none;background:transparent;padding:6px 11px;cursor:pointer;color:inherit;font:inherit}
+.desk .seg button.on{background:var(--accent);color:#fff}
+.desk > button{padding:6px 12px;border-radius:8px;border:1px solid var(--border);background:transparent;color:inherit;cursor:pointer;font:inherit}
+</style>
+
+<div class="desk" id="desk">
+  <span>Render rate:</span>
+  <span class="seg" id="hz">
+    <button data-hz="1">1/s</button><button data-hz="2">2/s</button><button data-hz="4" class="on">4/s</button><button data-hz="10">10/s</button><button data-hz="20">20/s</button>
+  </span>
+  <button id="restart">New run (Apply)</button>
+  <button id="err">Show error</button>
+</div>
+
+<div class="options">
+<div class="option" data-choice="a" onclick="toggleSelect(this)" style="display:block">
+  <div class="content" style="width:100%">
+    <h3 style="margin-bottom:10px">A. Calm: top navigation, numbers only</h3>
+    <div class="fx fx-a" id="A" onclick="event.stopPropagation()">
+      <div class="top">
+        <div class="brand"><span class="mark"></span>Market feed</div>
+        <nav><a class="on" href="#">Dashboard</a><a href="#">Settings</a></nav>
+        <div class="right"><span class="st"></span><button class="btn pp">Pause</button></div>
+      </div>
+      <div class="banner"><span class="msg"></span><button class="btn">Retry</button></div>
+      <div class="head"><h1>Live market</h1><span class="meta mt"></span></div>
+      <div class="tablewrap"><table><thead><tr><th>Instrument</th><th>Last price</th><th>Spread</th><th>Volume</th><th>VWAP</th><th>Imbalance</th></tr></thead><tbody></tbody></table></div>
+    </div>
+    <p style="font-size:13px;color:var(--text-secondary)">Status and pause on the right of the top bar. Price changes flash briefly; imbalance is a signed number.</p>
+  </div>
+</div>
+
+<div class="option" data-choice="b" onclick="toggleSelect(this)" style="display:block">
+  <div class="content" style="width:100%">
+    <h3 style="margin-bottom:10px">B. Expressive: side rail, gradient band, imbalance scale</h3>
+    <div class="fx fx-b" id="B" onclick="event.stopPropagation()">
+      <div class="rail">
+        <span class="mark"></span>
+        <a class="on" href="#" title="Dashboard"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 5-6"/></svg></a>
+        <a href="#" title="Settings"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></a>
+      </div>
+      <div>
+        <div class="band">
+          <div>
+            <h1>Live market</h1>
+            <div class="stats"><span>Status<b class="st"></b></span><span>Run<b class="run"></b></span><span>Nominal rate<b>200 / s</b></span><span>Trades counted<b class="cnt">0</b></span></div>
+          </div>
+          <button class="btn pp">Pause</button>
+        </div>
+        <div class="banner"><span class="msg"></span><button class="btn">Retry</button></div>
+        <div class="tablewrap"><table><thead><tr><th>Instrument</th><th>Last price</th><th>Spread</th><th>Volume</th><th>VWAP</th><th>Imbalance</th></tr></thead><tbody></tbody></table></div>
+      </div>
+    </div>
+    <p style="font-size:13px;color:var(--text-secondary)">Icon navigation on the left. Status, run number and trade count in the gradient band. Last price has a direction arrow; imbalance has a −1…+1 scale.</p>
+  </div>
+</div>
+</div>
+
+<script>
+(function(){
+  const SYMS=['ALFA','BETA','GAMA','DLTA','EPSI'];
+  const N=SYMS.length, PER_BATCH=100, INTERVAL=500;
+  let run=0, status='init', timer=null, hz=4, lastPaint=0, trades=0;
+  let inst, agg, prevLast;
+  const usd=new Intl.NumberFormat('en-US',{style:'currency',currency:'USD',minimumFractionDigits:2,maximumFractionDigits:2});
+  const int=new Intl.NumberFormat('en-US');
+  const r=(a,b)=>a+Math.random()*(b-a), ri=(a,b)=>Math.floor(r(a,b+1));
+
+  function newRun(){
+    clearInterval(timer); run++; trades=0; status='init';
+    inst=SYMS.map(()=>{const p=r(1000,50000);return{mid:p,anchor:p,bq:ri(100,1000),aq:ri(100,1000)}});
+    agg=SYMS.map(()=>({last:null,bid:null,ask:null,bq:null,aq:null,vol:0,pv:0}));
+    prevLast=SYMS.map(()=>null);
+    paint(true);
+    setTimeout(()=>{ if(status==='init'){status='running';start();paint(true);} },1400);
+  }
+  function start(){ timer=setInterval(batch,INTERVAL); }
+  function batch(){
+    for(let k=0;k<PER_BATCH;k++){
+      const i=ri(0,N-1), s=inst[i];
+      s.mid*=1+r(-0.001,0.001); s.mid+= (s.anchor-s.mid)*0.002; s.mid=Math.max(s.mid,100);
+      const spread=ri(1,4), bid=Math.max(1,Math.round(s.mid-spread/2)), ask=bid+spread;
+      s.bq=Math.max(0,s.bq+ri(-40,40)); s.aq=Math.max(0,s.aq+ri(-40,40));
+      const buy=Math.random()<.5, price=buy?ask:bid, q=ri(1,500);
+      const a=agg[i]; a.last=price;a.bid=bid;a.ask=ask;a.bq=s.bq;a.aq=s.aq;a.vol+=q;a.pv+=price*q; trades++;
+    }
+    const now=performance.now();
+    if(now-lastPaint>=1000/hz-5){lastPaint=now;paint(false);}
+  }
+  function stLabel(){return {init:'Initializing',running:'Running',paused:'Paused',error:'Error'}[status];}
+  function paint(){
+    ['A','B'].forEach(id=>{
+      const root=document.getElementById(id);
+      root.classList.toggle('is-error',status==='error');
+      root.querySelector('.msg').innerHTML='<b>Generator failed to load.</b> WebAssembly.instantiate(): expected magic word 00 61 73 6d. Check that generator_bg.wasm is deployed, then retry.';
+      root.querySelectorAll('.st').forEach(el=>{el.className='st '+({init:'init',running:'running',paused:'paused',error:'error'}[status]);el.innerHTML='<span class="dot"></span>'+stLabel();});
+      const pp=root.querySelector('.pp'); pp.textContent=status==='paused'?'Resume':'Pause'; pp.disabled=status==='init'||status==='error'; pp.style.opacity=pp.disabled?.45:1;
+      const runEl=root.querySelector('.run'); if(runEl) runEl.textContent='#'+run;
+      const cnt=root.querySelector('.cnt'); if(cnt) cnt.textContent=int.format(trades);
+      const mt=root.querySelector('.mt'); if(mt) mt.textContent='Run #'+run+'   5 instruments   100 updates every 500 ms   ≈200 updates/s';
+      const tb=root.querySelector('tbody');
+      tb.innerHTML=agg.map((a,i)=>{
+        const spread=a.bid==null?null:(a.ask-a.bid);
+        const vwap=a.vol?a.pv/a.vol:null;
+        const den=(a.bq??0)+(a.aq??0), imb=a.bq==null||den===0?null:(a.bq-a.aq)/den;
+        const dir=prevLast[i]==null||a.last==null||a.last===prevLast[i]?'':(a.last>prevLast[i]?'up':'down');
+        const f=v=>v==null?'<span class="na">—</span>':usd.format(v/100);
+        const imbTxt=imb==null?'<span class="na">—</span>':(imb>0?'+':'')+imb.toFixed(2);
+        let imbCell=imbTxt;
+        if(id==='B'){
+          const w=imb==null?0:Math.abs(imb)*50, left=imb==null?50:(imb>=0?50:50-w);
+          const col=imb==null?'transparent':(imb>=0?'var(--mint)':'var(--rose)');
+          imbCell='<div class="imb"><span>'+imbTxt+'</span><span class="bar"><i style="left:'+left+'%;width:'+w+'%;background:'+col+'"></i></span></div>';
+        }
+        const arrow=id==='B'?'<span class="arrow '+dir+'">'+(dir==='up'?'▲':dir==='down'?'▼':'')+'</span> ':'';
+        return '<tr><td class="sym">'+SYMS[i]+'</td><td class="num '+dir+'">'+arrow+f(a.last)+'</td><td class="num">'+f(spread)+'</td><td class="num">'+int.format(a.vol)+'</td><td class="num">'+f(vwap)+'</td><td class="num">'+imbCell+'</td></tr>';
+      }).join('');
+    });
+    prevLast=agg.map(a=>a.last);
+    // fade flash back
+    setTimeout(()=>document.querySelectorAll('.fx td.up,.fx td.down').forEach(td=>td.classList.remove('up','down')),350);
+  }
+  document.querySelectorAll('.fx .pp').forEach(b=>b.addEventListener('click',()=>{
+    if(status==='running'){status='paused';clearInterval(timer);}
+    else if(status==='paused'){status='running';start();}
+    paint();
+  }));
+  document.querySelectorAll('.fx .banner .btn').forEach(b=>b.addEventListener('click',()=>newRun()));
+  document.querySelectorAll('#hz button').forEach(b=>b.addEventListener('click',()=>{
+    hz=+b.dataset.hz; document.querySelectorAll('#hz button').forEach(x=>x.classList.toggle('on',x===b));
+  }));
+  document.getElementById('restart').addEventListener('click',newRun);
+  document.getElementById('err').addEventListener('click',()=>{clearInterval(timer);status='error';paint();});
+  newRun();
+})();
+</script>
+
+</body></html>
