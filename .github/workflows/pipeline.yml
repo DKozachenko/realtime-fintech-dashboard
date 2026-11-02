@@ -9,6 +9,9 @@ on:
 permissions:
   contents: read
 
+env:
+  WASM_ARTIFACT_NAME: wasm-generator
+
 # Third-party actions are pinned to commit SHAs, GitHub's own actions/* to major versions (DECISIONS D26).
 jobs:
   cache-deps:
@@ -28,8 +31,35 @@ jobs:
           path: node_modules
           key: ${{ github.repository }}-${{ hashFiles('package-lock.json') }}
 
+  # Builds the Wasm package once; deploy and test download it instead of setting up Rust themselves.
+  build-wasm:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out
+        uses: actions/checkout@v7
+      - name: Set up Rust with the Wasm target
+        uses: dtolnay/rust-toolchain@b725eda525362e7cf34af9a7243cac1e3f01a7ec # stable
+        with:
+          targets: wasm32-unknown-unknown
+      - name: Cache Cargo registry and build output
+        uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
+        with:
+          workspaces: generator
+      - name: Install wasm-pack
+        uses: taiki-e/install-action@682ce6c3c696a4cd5168a05f98e51aa02b877941 # v2.89.1
+        with:
+          tool: wasm-pack@0.15.1
+      - name: Build the Wasm generator
+        run: npm run build:wasm
+      - name: Upload the Wasm package
+        uses: actions/upload-artifact@v7
+        with:
+          name: ${{ env.WASM_ARTIFACT_NAME }}
+          path: src/wasm/generator
+          if-no-files-found: error
+
   deploy:
-    needs: [cache-deps]
+    needs: [cache-deps, build-wasm]
     # Only develop is published; pull requests and other branches build and test but never deploy.
     if: github.ref_name == 'develop' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
     runs-on: ubuntu-latest
@@ -56,20 +86,13 @@ jobs:
           path: node_modules
           key: ${{ github.repository }}-${{ hashFiles('package-lock.json') }}
           fail-on-cache-miss: true
-      - name: Set up Rust with the Wasm target
-        uses: dtolnay/rust-toolchain@b725eda525362e7cf34af9a7243cac1e3f01a7ec # stable
+      - name: Download the Wasm package
+        uses: actions/download-artifact@v8
         with:
-          targets: wasm32-unknown-unknown
-      - name: Cache Rust build
-        uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
-        with:
-          workspaces: generator
-      - name: Install wasm-pack
-        uses: taiki-e/install-action@682ce6c3c696a4cd5168a05f98e51aa02b877941 # v2.89.1
-        with:
-          tool: wasm-pack@0.15.1
-      - name: Build
-        run: npm run build -- --base-href=/realtime-fintech-dashboard/
+          name: ${{ env.WASM_ARTIFACT_NAME }}
+          path: src/wasm/generator
+      - name: Build the app
+        run: npm run build:app -- --base-href=/realtime-fintech-dashboard/
       # GitHub Pages has no rewrite rules: serve the app for unknown paths (DECISIONS D20).
       - name: Add SPA fallback
         run: cp dist/realtime-fintech-dashboard/browser/index.html dist/realtime-fintech-dashboard/browser/404.html
@@ -82,7 +105,7 @@ jobs:
         uses: actions/deploy-pages@v5
 
   test:
-    needs: [cache-deps]
+    needs: [cache-deps, build-wasm]
     runs-on: ubuntu-latest
     steps:
       - name: Check out
@@ -97,31 +120,24 @@ jobs:
           path: node_modules
           key: ${{ github.repository }}-${{ hashFiles('package-lock.json') }}
           fail-on-cache-miss: true
-      - name: Set up Rust with the Wasm target
-        uses: dtolnay/rust-toolchain@b725eda525362e7cf34af9a7243cac1e3f01a7ec # stable
+      # The worker imports the Wasm package and the test bundle includes the worker.
+      - name: Download the Wasm package
+        uses: actions/download-artifact@v8
         with:
-          targets: wasm32-unknown-unknown
-      - name: Cache Rust build
-        uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
-        with:
-          workspaces: generator
-      - name: Install wasm-pack
-        uses: taiki-e/install-action@682ce6c3c696a4cd5168a05f98e51aa02b877941 # v2.89.1
-        with:
-          tool: wasm-pack@0.15.1
-      # Builds the Wasm package first: the worker imports it and the test bundle includes the worker.
+          name: ${{ env.WASM_ARTIFACT_NAME }}
+          path: src/wasm/generator
       - name: Run Angular unit tests
-        run: npm test
+        run: npm run test:app
 
   test-wasm:
-    # Rust only: needs no node_modules, so it starts right away.
+    needs: [cache-deps]
     runs-on: ubuntu-latest
     steps:
       - name: Check out
         uses: actions/checkout@v7
       - name: Set up Rust
         uses: dtolnay/rust-toolchain@b725eda525362e7cf34af9a7243cac1e3f01a7ec # stable
-      - name: Cache Rust build
+      - name: Cache Cargo registry and build output
         uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
         with:
           workspaces: generator
