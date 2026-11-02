@@ -68,3 +68,7 @@ See [DECISIONS.md](DECISIONS.md) for the choices made and their trade-offs.
 ## Deployment
 
 The workflow in `.github/workflows/pipeline.yml` runs on pushes to `develop`, pull requests and manual dispatch. `test-wasm` (Rust) starts at once; after dependencies are cached, `deploy` and `test` (Angular) run in parallel, so deploy does not wait for tests. A push to `develop`, or a manual run on it, builds the app with `--base-href=/realtime-fintech-dashboard/`, copies `index.html` to `404.html` (so deep links such as `/settings` work on GitHub Pages), and publishes it with `actions/upload-pages-artifact` and `actions/deploy-pages`. In the repository settings, Pages source must be set to "GitHub Actions".
+
+## License
+
+[MIT](LICENSE)

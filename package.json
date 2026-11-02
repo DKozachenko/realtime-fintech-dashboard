@@ -1,6 +1,11 @@
 {
   "name": "realtime-fintech-dashboard",
   "version": "0.0.0",
+  "author": {
+    "name": "Diana Kozachenko",
+    "email": "public@dkozachenko.com"
+  },
+  "license": "MIT",
   "scripts": {
     "start": "npm run build:wasm && ng serve",
     "build": "npm run build:wasm && ng build",

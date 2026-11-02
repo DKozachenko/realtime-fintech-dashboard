@@ -2,7 +2,9 @@
 name = "generator"
 version = "0.1.0"
 edition = "2021"
+authors = ["Diana Kozachenko"]
 description = "Seeded market update generator for a demo market dashboard"
+license = "MIT"
 
 [lib]
 crate-type = ["cdylib", "rlib"]
