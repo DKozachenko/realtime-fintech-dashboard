@@ -493,7 +493,7 @@ README (английский): что это (одним абзацем), live d
 ### Task 14: Линтеры
 
 **Files:**
-- Create: `eslint.config.js`, `.stylelintrc.json`
+- Create: `configs/eslint/` (eslint.config.ts + angular, javascript, typescript, import, prettier), `configs/stylelint/stylelint.config.js`, `configs/rust/rustfmt.toml`
 - Modify: `package.json`, `.github/workflows/pipeline.yml`
 
 - [ ] **Step 1:** `npx ng add @angular-eslint/schematics@19` (версия под Angular 19); stylelint + `stylelint-config-standard-scss` (точные версии). Скрипты `lint`, `stylelint` (`'src/**/*.scss'`), `lint:rust` (`cargo fmt --manifest-path generator/Cargo.toml --check && cargo clippy --manifest-path generator/Cargo.toml -- -D warnings`).

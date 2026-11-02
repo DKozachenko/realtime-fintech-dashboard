@@ -143,3 +143,41 @@ jobs:
           workspaces: generator
       - name: Run Rust unit tests
         run: npm run test:wasm
+
+  lint:
+    needs: [cache-deps]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out
+        uses: actions/checkout@v7
+      - name: Set up Node
+        uses: actions/setup-node@v7
+        with:
+          node-version-file: .node-version
+      - name: Restore node_modules from cache
+        uses: actions/cache/restore@v6
+        with:
+          path: node_modules
+          key: ${{ github.repository }}-${{ hashFiles('package-lock.json') }}
+          fail-on-cache-miss: true
+      - name: Run ESLint
+        run: npm run lint
+      - name: Run stylelint
+        run: npm run stylelint
+
+  lint-rust:
+    needs: [cache-deps]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out
+        uses: actions/checkout@v7
+      - name: Set up Rust
+        uses: dtolnay/rust-toolchain@b725eda525362e7cf34af9a7243cac1e3f01a7ec # stable
+        with:
+          components: rustfmt, clippy
+      - name: Cache Cargo registry and build output
+        uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
+        with:
+          workspaces: generator
+      - name: Check Rust formatting and run clippy
+        run: npm run lint:rust

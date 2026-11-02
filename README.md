@@ -22,6 +22,9 @@ npm run build:app    # build only the Angular app (expects a built Wasm package)
 npm run test:wasm    # Rust unit tests (cargo test)
 npm test             # build the Wasm generator, then Angular unit tests (headless Chrome, single run)
 npm run test:app     # only the Angular unit tests (expects a built Wasm package)
+npm run lint         # ESLint (TypeScript and Angular templates)
+npm run stylelint    # stylelint (SCSS)
+npm run lint:rust    # rustfmt check and clippy
 ```
 
 If Karma cannot find the browser, point it at one:
@@ -70,7 +73,7 @@ See [DECISIONS.md](DECISIONS.md) for the choices made and their trade-offs.
 
 ## Deployment
 
-The workflow in `.github/workflows/pipeline.yml` runs on pushes to `develop`, pull requests and manual dispatch. `cache-deps` caches `node_modules` and `build-wasm` builds the Wasm package once and shares it as an artifact. Then `deploy`, `test` (Angular) and `test-wasm` (Rust) run in parallel, so deploy does not wait for tests. A push to `develop`, or a manual run on it, builds the app with `--base-href=/realtime-fintech-dashboard/`, copies `index.html` to `404.html` (so deep links such as `/settings` work on GitHub Pages), and publishes it with `actions/upload-pages-artifact` and `actions/deploy-pages`. In the repository settings, Pages source must be set to "GitHub Actions".
+The workflow in `.github/workflows/pipeline.yml` runs on pushes to `develop`, pull requests and manual dispatch. `cache-deps` caches `node_modules` and `build-wasm` builds the Wasm package once and shares it as an artifact. Then `deploy`, `test` (Angular), `test-wasm` (Rust), `lint` (ESLint and stylelint) and `lint-rust` (rustfmt and clippy) run in parallel, so deploy does not wait for tests or linters. A push to `develop`, or a manual run on it, builds the app with `--base-href=/realtime-fintech-dashboard/`, copies `index.html` to `404.html` (so deep links such as `/settings` work on GitHub Pages), and publishes it with `actions/upload-pages-artifact` and `actions/deploy-pages`. In the repository settings, Pages source must be set to "GitHub Actions".
 
 ## License
 
