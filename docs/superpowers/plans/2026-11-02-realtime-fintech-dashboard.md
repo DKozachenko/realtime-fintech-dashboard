@@ -6,7 +6,7 @@
 
 **Architecture:** Три слоя: Wasm (`generator/`) генерирует сырые обновления в плоский `Uint32Array`; воркер (`ProducerEngine`) по таймеру забирает батчи, агрегирует метрики и раз в N батчей шлёт снимок; Angular (`ProducerService` + две страницы) хранит прогон в сигналах, отбрасывает чужие `runId`, форматирует через pipes.
 
-**Tech Stack:** Angular 19.2.x (standalone, signals, Reactive Forms, SCSS), Karma + Jasmine, Node 22, Rust stable + wasm-bindgen + wasm-pack 0.15.1 + rand_pcg, GitHub Actions + peaceiris/actions-gh-pages.
+**Tech Stack:** Angular 19.2.x (standalone, signals, Reactive Forms, SCSS), Karma + Jasmine, Node 22, Rust stable + wasm-bindgen + wasm-pack 0.15.1 + rand_pcg, GitHub Actions + actions/deploy-pages.
 
 **Spec:** `docs/superpowers/specs/2026-11-02-realtime-fintech-dashboard-design.md` (+ `DECISIONS.md`, макеты `docs/superpowers/mockups/dashboard.html`, `settings.html` — вариант B в обоих).
 
@@ -473,17 +473,19 @@ src/
 **Interfaces:**
 - Consumes: npm-скрипты `build`, `build:wasm`, `test`, `test:wasm`.
 
-Пайплайн (спека §9): `name: Realtime Fintech Dashboard`; `permissions: contents: write`; триггеры push `develop`, pull_request, workflow_dispatch. Jobs:
-- `cache-deps`: checkout → `actions/setup-node@v4` (`node-version-file: .node-version`) → `npm ci --ignore-scripts` → `actions/cache/save@v4` (`node_modules`, ключ `${{ github.repository }}-${{ hashFiles('package-lock.json') }}`).
-- `deploy` (needs cache-deps; `if: github.event_name == 'push' && github.ref_name == 'develop'`): checkout → setup-node → cache restore (`fail-on-cache-miss: true`) → `dtolnay/rust-toolchain@stable` (`targets: wasm32-unknown-unknown`) → `Swatinem/rust-cache@v2` (`workspaces: generator`) → `taiki-e/install-action@v2` (`tool: wasm-pack@0.15.1`) → `npm run build -- --base-href=/realtime-fintech-dashboard/` → `cp dist/realtime-fintech-dashboard/browser/index.html dist/realtime-fintech-dashboard/browser/404.html` (SPA-фолбэк, DECISIONS D20) → `peaceiris/actions-gh-pages@v4` (`publish_dir: ./dist/realtime-fintech-dashboard/browser`).
-- `test` (needs cache-deps): checkout → setup-node → cache restore → rust toolchain + rust-cache → `npm run test:wasm` → `npm test`.
+Пайплайн (спека §9): `name: Realtime Fintech Dashboard`; на уровне workflow `permissions: contents: read`; триггеры push `develop`, pull_request, workflow_dispatch. Jobs:
+- `cache-deps`: `actions/checkout@v7` → `actions/setup-node@v7` (`node-version-file: .node-version`) → `npm ci --ignore-scripts` → `actions/cache/save@v6` (`node_modules`, ключ `${{ github.repository }}-${{ hashFiles('package-lock.json') }}`).
+- `deploy` (needs cache-deps; `if: github.event_name == 'push' && github.ref_name == 'develop'`; `permissions: pages: write, id-token: write`; `environment: { name: github-pages, url: ${{ steps.deployment.outputs.page_url }} }`; `concurrency: { group: pages, cancel-in-progress: false }`): checkout → setup-node → `actions/cache/restore@v6` (`fail-on-cache-miss: true`) → `dtolnay/rust-toolchain@stable` (`targets: wasm32-unknown-unknown`) → `Swatinem/rust-cache@v2` (`workspaces: generator`) → `taiki-e/install-action@v2` (`tool: wasm-pack@0.15.1`) → `npm run build -- --base-href=/realtime-fintech-dashboard/` → `cp dist/realtime-fintech-dashboard/browser/index.html dist/realtime-fintech-dashboard/browser/404.html` (SPA-фолбэк, DECISIONS D20) → `actions/upload-pages-artifact@v5` (`path: dist/realtime-fintech-dashboard/browser`) → `actions/deploy-pages@v5` (`id: deployment`). Без ветки `gh-pages`: Pages Source = «GitHub Actions» (DECISIONS D20).
+- `test` (needs `[cache-deps]`): checkout → setup-node → cache restore → rust toolchain + rust-cache + wasm-pack → `npm test` (сам собирает Wasm).
+- `test-wasm` (без needs): checkout → rust toolchain + rust-cache → `npm run test:wasm`.
+- Все шаги с `name`; `needs` — массивом; сторонние action по SHA (DECISIONS D26); deploy также по `workflow_dispatch` на `develop`.
 
 README (английский): что это (одним абзацем), live demo `https://dkozachenko.github.io/realtime-fintech-dashboard/`, требования (Node 22, Rust stable + `wasm32-unknown-unknown`, wasm-pack 0.15.1, Chrome/Chromium), команды `npm ci`, `npm start`, `npm run build`, `npm run test:wasm`, `npm test` (с `CHROME_BIN`), схема архитектуры (диаграмма из спеки §5 в ASCII), раздел тестов → какие файлы что покрывают, ссылка на `DECISIONS.md`, деплой.
 
 - [ ] **Step 1:** Написать workflow и README.
 - [ ] **Step 2: Проверка локально.** `npx -y yaml-lint .github/workflows/pipeline.yml` (или `python3 -c "import yaml,sys;yaml.safe_load(open('.github/workflows/pipeline.yml'))"`) → без ошибок; `npm run build -- --base-href=/realtime-fintech-dashboard/` → в `dist/.../browser/index.html` `<base href="/realtime-fintech-dashboard/">`.
 - [ ] **Step 3: Commit** — `ci: build, test and deploy to GitHub Pages` и `docs: add README`.
-- [ ] **Step 4: Передать пользователю:** после её push проверить вкладку Actions; когда появится ветка `gh-pages`, в Settings → Pages выбрать `gh-pages` / `(root)`; открыть демо и убедиться, что таблица оживает (Wasm грузится под base-href).
+- [ ] **Step 4: Передать пользователю:** Settings → Pages → Source = «GitHub Actions» (окружение `github-pages` уже разрешает `develop`); после её push проверить вкладку Actions; открыть демо и убедиться, что таблица оживает (Wasm грузится под base-href), F5 на `/settings` работает (404.html).
 
 ---
 

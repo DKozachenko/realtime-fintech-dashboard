@@ -246,13 +246,13 @@ generator.free()                          освобождение (Apply / disp
 Триггеры: push в `develop`, pull_request, workflow_dispatch.
 
 ```
-cache-deps ─┬─▶ deploy   Rust + wasm-pack → ng build --base-href=/realtime-fintech-dashboard/ → peaceiris/actions-gh-pages (только push в develop)
+cache-deps ─┬─▶ deploy   Rust + wasm-pack → ng build --base-href=/realtime-fintech-dashboard/ → upload-pages-artifact → deploy-pages (только push в develop)
             ├─▶ test     cargo test + ng test (ChromeHeadless)
             └─▶ lint     ESLint, stylelint, cargo clippy/fmt — добавляется последним
 ```
 
 - **Деплой не зависит от тестов** (осознанно: изменения на демо появляются быстрее; красный тест виден отдельно).
-- GitHub Pages публикует ветку `gh-pages` (корень). Её создаёт первый деплой; до этого Pages выключен.
+- GitHub Pages: Source = «GitHub Actions», сборка публикуется артефактом, без ветки `gh-pages`; окружение `github-pages` разрешает деплой из `develop` (DECISIONS D20).
 - Node через `actions/setup-node` с `node-version-file: .node-version`; кэш cargo.
 - GitHub Pages отдаёт `.wasm` с `application/wasm`.
 

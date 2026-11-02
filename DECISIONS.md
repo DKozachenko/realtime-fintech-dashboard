@@ -107,9 +107,11 @@ The rustwasm GitHub organisation is being archived, but wasm-pack moved to a lon
 In CI, deploy runs right after dependency caching. Tests and linters run in parallel. Every push reaches the live demo as fast as possible, and a failing test still shows up as a red check.
 **Trade-off:** broken code can be deployed.
 
-### D20. `404.html` fallback on GitHub Pages
-GitHub Pages is a static file host with no rewrite rules: a path with no file behind it, such as `/dashboard` after a reload or from a shared link, gets the site's `404.html`. CI copies the built `index.html` to `404.html`, so that response is the app itself; Angular reads the URL and opens the matching route. Routes are `/dashboard` and `/settings`, and the root redirects to `/dashboard`.
-**Trade-off:** a deep link answers with HTTP status 404 even though the page works. Hash routing (`/#/dashboard`) avoids that but makes every URL carry a `#`.
+### D20. GitHub Pages: artifact deploy and a `404.html` fallback
+- **Deploy from a workflow artifact, not a `gh-pages` branch.** The deploy job uploads the build with `actions/upload-pages-artifact` and publishes it with `actions/deploy-pages`; the Pages source is "GitHub Actions". The repository has no branch full of build output, the job needs only `pages: write` and `id-token: write` instead of write access to the repository, and every deploy is recorded in the `github-pages` environment. The environment allows deployments from `develop`, which is not the default branch.
+- **`404.html` fallback.** GitHub Pages is a static file host with no rewrite rules: a path with no file behind it, such as `/dashboard` after a reload or from a shared link, gets the site's `404.html`. CI copies the built `index.html` to `404.html`, so that response is the app itself; Angular reads the URL and opens the matching route. Routes are `/dashboard` and `/settings`, and the root redirects to `/dashboard`.
+
+**Trade-offs:** the deployed files are not browsable as a branch, they live in the workflow run's artifact; a deep link answers with HTTP status 404 even though the page works. Hash routing (`/#/dashboard`) would avoid the 404 status but puts a `#` in every URL.
 
 ### D21. No mobile layout
 Not required by the task. The left rail and the table keep their desktop layout; on narrow screens the table scrolls horizontally.
@@ -121,3 +123,8 @@ After any error, whether the worker script failed to load, the `.wasm` failed to
 
 ### D23. Zoneless change detection
 Angular 19's `provideExperimentalZonelessChangeDetection()` instead of Zone.js. State lives in signals and components are OnPush, so change detection runs only when a signal the template reads changes; worker messages no longer trigger app-wide checks through Zone.js patching. Trade-off: the API is experimental in Angular 19 (stable from Angular 20), and tests cannot use `fakeAsync` — timers are injected instead (the worker engine uses a fake scheduler).
+
+### D26. Third-party actions are pinned to commit SHAs
+`dtolnay/rust-toolchain`, `Swatinem/rust-cache` and `taiki-e/install-action` are referenced by full commit SHA, with the version in a comment. A tag such as `@v2` or `@stable` can be moved to different code by the action's author, or by whoever takes over their account, and that code would run in the deploy job, which can publish the site. GitHub's own `actions/*` stay on major versions: they come from the same vendor as the runner itself.
+**Trade-off:** updates are manual (or through Dependabot, which is not set up).
+
