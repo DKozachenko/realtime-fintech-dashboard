@@ -17,8 +17,11 @@ An Angular dashboard that shows live market metrics for a configurable set of in
 npm ci               # install dependencies
 npm start            # build the Wasm generator and serve the app (ng serve)
 npm run build        # build the Wasm generator and the production bundle
+npm run build:wasm   # build only the Wasm generator into src/wasm/generator
+npm run build:app    # build only the Angular app (expects a built Wasm package)
 npm run test:wasm    # Rust unit tests (cargo test)
 npm test             # build the Wasm generator, then Angular unit tests (headless Chrome, single run)
+npm run test:app     # only the Angular unit tests (expects a built Wasm package)
 ```
 
 If Karma cannot find the browser, point it at one:
