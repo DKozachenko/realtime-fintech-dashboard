@@ -13,7 +13,10 @@
     "build:wasm": "wasm-pack build generator --target web --release --out-dir ../src/wasm/generator --out-name generator",
     "test:wasm": "cargo test --manifest-path generator/Cargo.toml",
     "test": "npm run build:wasm && npm run test:app",
-    "test:app": "ng test --watch=false --browsers=ChromeHeadlessCI"
+    "test:app": "ng test --watch=false --browsers=ChromeHeadlessCI",
+    "lint": "eslint --config configs/eslint/eslint.config.ts \"src/**/*.{ts,html}\"",
+    "stylelint": "stylelint --config configs/stylelint/stylelint.config.js \"src/**/*.scss\"",
+    "lint:rust": "cargo fmt --manifest-path generator/Cargo.toml -- --check --config-path configs/rust/rustfmt.toml && cargo clippy --manifest-path generator/Cargo.toml --all-targets -- -D warnings"
   },
   "private": true,
   "dependencies": {
@@ -32,12 +35,23 @@
     "@angular/cli": "19.2.27",
     "@angular/compiler-cli": "19.2.25",
     "@types/jasmine": "5.1.15",
+    "angular-eslint": "19.8.1",
+    "eslint": "9.39.5",
+    "eslint-plugin-import": "2.32.0",
+    "eslint-plugin-prettier": "5.5.6",
     "jasmine-core": "5.6.0",
+    "jiti": "2.7.0",
     "karma": "6.4.4",
     "karma-chrome-launcher": "3.2.0",
     "karma-coverage": "2.2.1",
     "karma-jasmine": "5.1.0",
     "karma-jasmine-html-reporter": "2.1.0",
-    "typescript": "5.7.3"
+    "postcss-scss": "4.0.9",
+    "prettier": "3.9.9",
+    "stylelint": "17.16.0",
+    "stylelint-prettier": "5.0.3",
+    "stylelint-scss": "7.3.0",
+    "typescript": "5.7.3",
+    "typescript-eslint": "8.71.0"
   }
 }
