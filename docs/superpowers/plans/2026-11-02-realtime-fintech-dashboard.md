@@ -68,7 +68,7 @@ src/
     pipes/cents.pipe.ts, pipes/imbalance.pipe.ts
     ui/status-indicator.component.ts
     dashboard/                     dashboard.component.*, price-trend.directive.ts
-    settings/                      settings.component.*, settings-validators.ts
+    settings/                      settings.component.*, settings-form.ts
 .github/workflows/pipeline.yml
 ```
 
@@ -439,8 +439,8 @@ src/
 ### Task 12: Страница настроек
 
 **Files:**
-- Create/Modify: `src/app/settings/settings.component.{ts,html,scss}`, `src/app/settings/settings-validators.ts`
-- Test: `settings.component.spec.ts`, `settings-validators.spec.ts`
+- Create/Modify: `src/app/settings/settings.component.{ts,html,scss}`, `src/app/settings/settings-form.ts`
+- Test: `settings.component.spec.ts`, `settings-form.spec.ts`
 
 **Interfaces:**
 - Consumes: `ProducerService`, `ProducerSettings`, `DEFAULT_SETTINGS`, `SETTINGS_LIMITS`, `sameSettings`, `nominalRate` (Tasks 4, 8), `StatusIndicatorComponent`.
