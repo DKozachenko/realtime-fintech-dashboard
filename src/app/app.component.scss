@@ -1,0 +1,48 @@
+:host {
+  display: grid;
+  grid-template-columns: 64px 1fr;
+  min-height: 100vh;
+}
+
+.rail {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  background: var(--panel);
+  border-right: 1px solid var(--line);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 16px 0;
+  gap: 10px;
+}
+
+.mark {
+  width: 30px;
+  height: 30px;
+  border-radius: 9px;
+  background: var(--moss);
+  margin-bottom: 10px;
+  display: grid;
+  place-items: center;
+  color: #eafff4;
+}
+
+.rail a {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  color: var(--muted);
+  text-decoration: none;
+
+  &.on {
+    background: #12291f;
+    color: var(--mint);
+  }
+}
+
+.content {
+  min-width: 0;
+}

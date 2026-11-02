@@ -1,0 +1,45 @@
+:host {
+  display: inline-flex;
+  align-items: center;
+  font-size: 13.5px;
+  color: #cfe8dc;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: 7px;
+  background: var(--muted);
+
+  &.running {
+    background: var(--mint);
+    animation: pulse 1.6s ease-in-out infinite;
+  }
+
+  &.paused {
+    background: var(--amber);
+  }
+
+  &.error {
+    background: var(--rose);
+  }
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(143, 227, 182, 0.55);
+  }
+  70% {
+    box-shadow: 0 0 0 7px rgba(143, 227, 182, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(143, 227, 182, 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dot.running {
+    animation: none;
+  }
+}

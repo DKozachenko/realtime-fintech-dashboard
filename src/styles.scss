@@ -1,1 +1,44 @@
-/* You can add global styles to this file, and also import other style files */
+:root {
+  --ink: #06110d;
+  --panel: #0b1c16;
+  --line: #1a3329;
+  --text: #e3efe8;
+  --muted: #7e9b8d;
+  --mint: #8fe3b6;
+  --rose: #ee8a96;
+  --amber: #e9c46a;
+  --moss: linear-gradient(120deg, #0b2f22 0%, #125238 55%, #1d7a54 100%);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  background: var(--ink);
+  color: var(--text);
+  font-family: Manrope, system-ui, sans-serif;
+  font-variant-numeric: tabular-nums;
+}
+
+button {
+  font: inherit;
+  cursor: pointer;
+}
+
+:focus-visible {
+  outline: 2px solid var(--mint);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

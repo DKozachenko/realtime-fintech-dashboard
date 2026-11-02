@@ -1,31 +1,29 @@
 import { provideExperimentalZonelessChangeDetection } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
 import { AppComponent } from './app.component';
+import { routes } from './config/app.routes';
 
 describe('AppComponent', () => {
-  beforeEach(async () => {
+  async function render(): Promise<HTMLElement> {
     await TestBed.configureTestingModule({
       imports: [AppComponent],
-      providers: [provideExperimentalZonelessChangeDetection()],
+      providers: [provideExperimentalZonelessChangeDetection(), provideRouter(routes)],
     }).compileComponents();
-  });
-
-  it('should create the app', () => {
-    const fixture = TestBed.createComponent(AppComponent);
-    const app = fixture.componentInstance;
-    expect(app).toBeTruthy();
-  });
-
-  it(`should have the 'realtime-fintech-dashboard' title`, () => {
-    const fixture = TestBed.createComponent(AppComponent);
-    const app = fixture.componentInstance;
-    expect(app.title).toEqual('realtime-fintech-dashboard');
-  });
-
-  it('should render title', async () => {
     const fixture = TestBed.createComponent(AppComponent);
     await fixture.whenStable();
-    const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('h1')?.textContent).toContain('Hello, realtime-fintech-dashboard');
+    return fixture.nativeElement as HTMLElement;
+  }
+
+  it('links the rail to the dashboard and settings pages', async () => {
+    const el = await render();
+    expect(el.querySelector('a[aria-label="Dashboard"]')?.getAttribute('href')).toBe('/dashboard');
+    expect(el.querySelector('a[aria-label="Settings"]')?.getAttribute('href')).toBe('/settings');
+  });
+
+  it('hosts a router outlet next to the rail', async () => {
+    const el = await render();
+    expect(el.querySelector('nav.rail')).not.toBeNull();
+    expect(el.querySelector('router-outlet')).not.toBeNull();
   });
 });
