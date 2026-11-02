@@ -55,9 +55,9 @@ src/
     shared/settings.ts             ProducerSettings, лимиты, дефолты, sameSettings, nominalRate
     shared/messages.ts             WorkerCommand, WorkerEvent, InstrumentMetrics
     shared/instruments.ts          INSTRUMENT_SYMBOLS, instrumentSymbol, emptyRows
-    shared/batch-layout.ts         FIELDS_PER_UPDATE, BatchField
+    worker/batch-layout.ts         FIELDS_PER_UPDATE, BatchField
     worker/metrics-aggregator.ts   агрегатор
-    worker/snapshot-cadence.ts     snapshotEvery
+    worker/snapshot-throttle.ts     snapshotEvery
     worker/producer-engine.ts      движок
     worker/wasm-batch-source.ts    обёртка над Generator + memory
     worker/producer.worker.ts      точка входа воркера
@@ -171,8 +171,8 @@ src/
 ### Task 4: Общие контракты
 
 **Files:**
-- Create: `src/app/shared/settings.ts`, `messages.ts`, `instruments.ts`, `batch-layout.ts`, `src/app/worker/snapshot-cadence.ts`
-- Test: `src/app/shared/settings.spec.ts`, `instruments.spec.ts`, `src/app/worker/snapshot-cadence.spec.ts`
+- Create: `src/app/shared/settings.ts`, `messages.ts`, `instruments.ts`, `src/app/worker/batch-layout.ts`, `src/app/worker/snapshot-throttle.ts`
+- Test: `src/app/shared/settings.spec.ts`, `instruments.spec.ts`, `src/app/worker/snapshot-throttle.spec.ts`
 
 **Interfaces:**
 - Produces:
@@ -199,7 +199,7 @@ src/
   // batch-layout.ts
   export const FIELDS_PER_UPDATE = 7;
   export const BatchField = { Instrument: 0, Price: 1, TradeQty: 2, Bid: 3, Ask: 4, BidQty: 5, AskQty: 6 } as const;
-  // snapshot-cadence.ts
+  // snapshot-throttle.ts
   export const DISPLAY_INTERVAL_MS = 250;
   export function snapshotEvery(batchIntervalMs: number, displayIntervalMs = DISPLAY_INTERVAL_MS): number;
   ```
