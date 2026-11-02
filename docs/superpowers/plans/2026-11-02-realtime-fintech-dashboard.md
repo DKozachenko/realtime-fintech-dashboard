@@ -402,7 +402,7 @@ src/
 **Interfaces:**
 - Consumes: `ProducerStatus` (Task 8).
 - Produces:
-  - Маршруты: `''` → `DashboardComponent` (`title: 'Live market'`), `'settings'` → `SettingsComponent` (`title: 'Producer settings'`), `'**'` → redirect `''`. Компоненты страниц в этой задаче — заглушки, наполняются в Task 11/12.
+  - Маршруты (`loadComponent`): `''` → redirect `'dashboard'`; `'dashboard'` → `DashboardComponent` (`title: 'Live market'`), `'settings'` → `SettingsComponent` (`title: 'Producer settings'`), `'**'` → redirect `'dashboard'`. Компоненты страниц в этой задаче — заглушки, наполняются в Task 11/12.
   - `StatusIndicatorComponent` (`app-status-indicator`): inputs `status: ProducerStatus`; текст `Initializing | Running | Paused | Error`, точка с классом статуса (running — пульсирует, отключается при reduced motion).
   - Каркас по макету B: рельс 64px (знак-градиент, иконки Dashboard/Settings с `title`/`aria-label`, `routerLinkActive`), справа `<router-outlet>`.
 
@@ -472,11 +472,11 @@ src/
 - Create: `.github/workflows/pipeline.yml`, `README.md`
 
 **Interfaces:**
-- Consumes: npm-скрипты `build`, `build:wasm`, `test:ci`, `test:wasm`.
+- Consumes: npm-скрипты `build`, `build:wasm`, `test`, `test:wasm`.
 
 Пайплайн (спека §9): `name: Realtime Fintech Dashboard`; `permissions: contents: write`; триггеры push `develop`, pull_request, workflow_dispatch. Jobs:
 - `cache-deps`: checkout → `actions/setup-node@v4` (`node-version-file: .node-version`) → `npm ci --ignore-scripts` → `actions/cache/save@v4` (`node_modules`, ключ `${{ github.repository }}-${{ hashFiles('package-lock.json') }}`).
-- `deploy` (needs cache-deps; `if: github.event_name == 'push' && github.ref_name == 'develop'`): checkout → setup-node → cache restore (`fail-on-cache-miss: true`) → `dtolnay/rust-toolchain@stable` (`targets: wasm32-unknown-unknown`) → `Swatinem/rust-cache@v2` (`workspaces: generator`) → `taiki-e/install-action@v2` (`tool: wasm-pack@0.15.1`) → `npm run build -- --base-href=/realtime-fintech-dashboard/` → `peaceiris/actions-gh-pages@v4` (`publish_dir: ./dist/realtime-fintech-dashboard/browser`).
+- `deploy` (needs cache-deps; `if: github.event_name == 'push' && github.ref_name == 'develop'`): checkout → setup-node → cache restore (`fail-on-cache-miss: true`) → `dtolnay/rust-toolchain@stable` (`targets: wasm32-unknown-unknown`) → `Swatinem/rust-cache@v2` (`workspaces: generator`) → `taiki-e/install-action@v2` (`tool: wasm-pack@0.15.1`) → `npm run build -- --base-href=/realtime-fintech-dashboard/` → `cp dist/realtime-fintech-dashboard/browser/index.html dist/realtime-fintech-dashboard/browser/404.html` (SPA-фолбэк, DECISIONS D20) → `peaceiris/actions-gh-pages@v4` (`publish_dir: ./dist/realtime-fintech-dashboard/browser`).
 - `test` (needs cache-deps): checkout → setup-node → cache restore → rust toolchain + rust-cache → `npm run test:wasm` → `npm test`.
 
 README (английский): что это (одним абзацем), live demo `https://dkozachenko.github.io/realtime-fintech-dashboard/`, требования (Node 22, Rust stable + `wasm32-unknown-unknown`, wasm-pack 0.15.1, Chrome/Chromium), команды `npm ci`, `npm start`, `npm run build`, `npm run test:wasm`, `npm test` (с `CHROME_BIN`), схема архитектуры (диаграмма из спеки §5 в ASCII), раздел тестов → какие файлы что покрывают, ссылка на `DECISIONS.md`, деплой.

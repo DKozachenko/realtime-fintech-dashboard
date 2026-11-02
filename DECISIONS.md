@@ -99,8 +99,9 @@ The rustwasm GitHub organisation is being archived, but wasm-pack moved to a lon
 In CI, deploy runs right after dependency caching. Tests and linters run in parallel. Every push reaches the live demo as fast as possible, and a failing test still shows up as a red check.
 **Trade-off:** broken code can be deployed.
 
-### D20. No `404.html` fallback on GitHub Pages
-In-app navigation works. Reloading on `/settings`, or opening it directly, returns GitHub's 404 page. We accept this because the demo link points to the root.
+### D20. `404.html` fallback on GitHub Pages
+GitHub Pages is a static file host with no rewrite rules: a path with no file behind it, such as `/dashboard` after a reload or from a shared link, gets the site's `404.html`. CI copies the built `index.html` to `404.html`, so that response is the app itself; Angular reads the URL and opens the matching route. Routes are `/dashboard` and `/settings`, and the root redirects to `/dashboard`.
+**Trade-off:** a deep link answers with HTTP status 404 even though the page works. Hash routing (`/#/dashboard`) avoids that but makes every URL carry a `#`.
 
 ### D21. No mobile layout
 Not required by the task. The left rail and the table keep their desktop layout; on narrow screens the table scrolls horizontally.
