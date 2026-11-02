@@ -1,0 +1,129 @@
+name: Realtime Fintech Dashboard
+
+on:
+  push:
+    branches: [develop]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# Third-party actions are pinned to commit SHAs, GitHub's own actions/* to major versions (DECISIONS D26).
+jobs:
+  cache-deps:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out
+        uses: actions/checkout@v7
+      - name: Set up Node
+        uses: actions/setup-node@v7
+        with:
+          node-version-file: .node-version
+      - name: Install dependencies
+        run: npm ci --ignore-scripts
+      - name: Save node_modules to cache
+        uses: actions/cache/save@v6
+        with:
+          path: node_modules
+          key: ${{ github.repository }}-${{ hashFiles('package-lock.json') }}
+
+  deploy:
+    needs: [cache-deps]
+    # Only develop is published; pull requests and other branches build and test but never deploy.
+    if: github.ref_name == 'develop' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    # One Pages deployment at a time; a running one is never cancelled halfway.
+    concurrency:
+      group: pages
+      cancel-in-progress: false
+    steps:
+      - name: Check out
+        uses: actions/checkout@v7
+      - name: Set up Node
+        uses: actions/setup-node@v7
+        with:
+          node-version-file: .node-version
+      - name: Restore node_modules from cache
+        uses: actions/cache/restore@v6
+        with:
+          path: node_modules
+          key: ${{ github.repository }}-${{ hashFiles('package-lock.json') }}
+          fail-on-cache-miss: true
+      - name: Set up Rust with the Wasm target
+        uses: dtolnay/rust-toolchain@b725eda525362e7cf34af9a7243cac1e3f01a7ec # stable
+        with:
+          targets: wasm32-unknown-unknown
+      - name: Cache Rust build
+        uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
+        with:
+          workspaces: generator
+      - name: Install wasm-pack
+        uses: taiki-e/install-action@682ce6c3c696a4cd5168a05f98e51aa02b877941 # v2.89.1
+        with:
+          tool: wasm-pack@0.15.1
+      - name: Build
+        run: npm run build -- --base-href=/realtime-fintech-dashboard/
+      # GitHub Pages has no rewrite rules: serve the app for unknown paths (DECISIONS D20).
+      - name: Add SPA fallback
+        run: cp dist/realtime-fintech-dashboard/browser/index.html dist/realtime-fintech-dashboard/browser/404.html
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: dist/realtime-fintech-dashboard/browser
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5
+
+  test:
+    needs: [cache-deps]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out
+        uses: actions/checkout@v7
+      - name: Set up Node
+        uses: actions/setup-node@v7
+        with:
+          node-version-file: .node-version
+      - name: Restore node_modules from cache
+        uses: actions/cache/restore@v6
+        with:
+          path: node_modules
+          key: ${{ github.repository }}-${{ hashFiles('package-lock.json') }}
+          fail-on-cache-miss: true
+      - name: Set up Rust with the Wasm target
+        uses: dtolnay/rust-toolchain@b725eda525362e7cf34af9a7243cac1e3f01a7ec # stable
+        with:
+          targets: wasm32-unknown-unknown
+      - name: Cache Rust build
+        uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
+        with:
+          workspaces: generator
+      - name: Install wasm-pack
+        uses: taiki-e/install-action@682ce6c3c696a4cd5168a05f98e51aa02b877941 # v2.89.1
+        with:
+          tool: wasm-pack@0.15.1
+      # Builds the Wasm package first: the worker imports it and the test bundle includes the worker.
+      - name: Run Angular unit tests
+        run: npm test
+
+  test-wasm:
+    # Rust only: needs no node_modules, so it starts right away.
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out
+        uses: actions/checkout@v7
+      - name: Set up Rust
+        uses: dtolnay/rust-toolchain@b725eda525362e7cf34af9a7243cac1e3f01a7ec # stable
+      - name: Cache Rust build
+        uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
+        with:
+          workspaces: generator
+      - name: Run Rust unit tests
+        run: npm run test:wasm
