@@ -23,8 +23,7 @@ const wasmUrl = new URL('wasm/generator_bg.wasm', new URL('.', self.location.hre
 init({ module_or_path: wasmUrl }).then(
   (wasm) => {
     engine = new ProducerEngine({
-      createSource: (instrumentCount, seed) =>
-        new WasmBatchSource(new Generator(instrumentCount, seed), wasm.memory),
+      createSource: (instrumentCount, seed) => new WasmBatchSource(new Generator(instrumentCount, seed), wasm.memory),
       nextSeed: () => crypto.getRandomValues(new Uint32Array(1))[0],
       scheduler: {
         setInterval: (callback, ms) => self.setInterval(callback, ms),

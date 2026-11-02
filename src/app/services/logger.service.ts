@@ -6,6 +6,8 @@ export type LogSource = 'app' | 'worker' | 'wasm';
 @Injectable({ providedIn: 'root' })
 export class LoggerService {
   info(source: LogSource, message: string, context?: Record<string, unknown>): void {
+    // The console is this logger's output; the project rule only allows console.warn/error elsewhere.
+    // eslint-disable-next-line no-console
     console.info(...this.format(source, message, context));
   }
 

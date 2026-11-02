@@ -21,7 +21,9 @@ export class FakeScheduler implements Scheduler {
   tick(times = 1): void {
     for (let i = 0; i < times; i++) {
       for (const [handle, timer] of [...this.timers]) {
-        if (this.timers.get(handle) === timer) timer.callback();
+        if (this.timers.get(handle) === timer) {
+          timer.callback();
+        }
       }
     }
   }

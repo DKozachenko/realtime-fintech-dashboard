@@ -12,7 +12,7 @@ describe('StatusIndicatorComponent', () => {
     const fixture = TestBed.createComponent(StatusIndicatorComponent);
     fixture.componentRef.setInput('status', status);
     await fixture.whenStable();
-    return fixture.nativeElement as HTMLElement;
+    return <HTMLElement>fixture.nativeElement;
   }
 
   const labels: [ProducerStatus, string][] = [

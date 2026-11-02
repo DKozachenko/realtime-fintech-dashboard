@@ -40,9 +40,7 @@ describe('settingsErrorMessage', () => {
     expect(settingsErrorMessage({ required: true })).toBe('Enter a value.');
     expect(settingsErrorMessage({ wholeNumber: true })).toBe('Enter a whole number.');
     expect(settingsErrorMessage({ range: { min: 1, max: 50 } })).toBe('Must be between 1 and 50.');
-    expect(settingsErrorMessage({ range: { min: 1, max: 1000 } })).toBe(
-      'Must be between 1 and 1,000.',
-    );
+    expect(settingsErrorMessage({ range: { min: 1, max: 1000 } })).toBe('Must be between 1 and 1,000.');
   });
 
   it('returns null without errors', () => {
@@ -52,18 +50,16 @@ describe('settingsErrorMessage', () => {
 
 describe('parseSettings', () => {
   it('parses valid strings into numbers', () => {
-    expect(
-      parseSettings({ instrumentCount: ' 12 ', updatesPerBatch: '100', batchIntervalMs: '250' }),
-    ).toEqual({ instrumentCount: 12, updatesPerBatch: 100, batchIntervalMs: 250 });
+    expect(parseSettings({ instrumentCount: ' 12 ', updatesPerBatch: '100', batchIntervalMs: '250' })).toEqual({
+      instrumentCount: 12,
+      updatesPerBatch: 100,
+      batchIntervalMs: 250,
+    });
   });
 
   it('returns null if any field is invalid', () => {
-    expect(
-      parseSettings({ instrumentCount: '51', updatesPerBatch: '100', batchIntervalMs: '250' }),
-    ).toBeNull();
-    expect(
-      parseSettings({ instrumentCount: '5', updatesPerBatch: '', batchIntervalMs: '250' }),
-    ).toBeNull();
+    expect(parseSettings({ instrumentCount: '51', updatesPerBatch: '100', batchIntervalMs: '250' })).toBeNull();
+    expect(parseSettings({ instrumentCount: '5', updatesPerBatch: '', batchIntervalMs: '250' })).toBeNull();
   });
 });
 

@@ -2,13 +2,7 @@ import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@a
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { ProducerService } from '../services/producer.service';
-import {
-  DEFAULT_SETTINGS,
-  nominalRate,
-  ProducerSettings,
-  sameSettings,
-  SETTINGS_LIMITS,
-} from '../shared/settings';
+import { DEFAULT_SETTINGS, nominalRate, ProducerSettings, sameSettings, SETTINGS_LIMITS } from '../shared/settings';
 import { StatusIndicatorComponent } from '../ui/status-indicator.component';
 import {
   fieldError,
@@ -63,24 +57,14 @@ export class SettingsComponent {
   protected readonly producer = inject(ProducerService);
 
   protected readonly fields: FieldDefinition[] = [
-    field(
-      'instrumentCount',
-      'Instrument count',
-      'Instrument count',
-      'How many instruments to generate data for.',
-    ),
+    field('instrumentCount', 'Instrument count', 'Instrument count', 'How many instruments to generate data for.'),
     field(
       'updatesPerBatch',
       'Updates per batch',
       'Updates per batch',
       'Market updates in each batch, across all instruments.',
     ),
-    field(
-      'batchIntervalMs',
-      'Batch interval, ms',
-      'Batch interval',
-      'Requested time between batches.',
-    ),
+    field('batchIntervalMs', 'Batch interval, ms', 'Batch interval', 'Requested time between batches.'),
   ];
 
   protected readonly form = this.createForm();
@@ -92,13 +76,11 @@ export class SettingsComponent {
   private readonly touched = signal<Partial<Record<Key, boolean>>>({});
   private readonly applied = signal(false);
 
-  private readonly parsed = computed(() =>
-    parseSettings(this.values() as Record<Key, string>),
-  );
+  private readonly parsed = computed(() => parseSettings(<Record<Key, string>>this.values()));
 
   private readonly errors = computed(() => {
-    const values = this.values() as Record<Key, string>;
-    const messages = {} as Record<Key, string | null>;
+    const values = <Record<Key, string>>this.values();
+    const messages = <Record<Key, string | null>>{};
     for (const { key } of this.fields) {
       messages[key] = settingsErrorMessage(fieldError(key, values[key]));
     }
@@ -109,7 +91,7 @@ export class SettingsComponent {
   protected readonly visibleErrors = computed(() => {
     const touched = this.touched();
     const errors = this.errors();
-    const visible = {} as Record<Key, string | null>;
+    const visible = <Record<Key, string | null>>{};
     for (const { key } of this.fields) {
       visible[key] = touched[key] ? errors[key] : null;
     }
@@ -124,7 +106,7 @@ export class SettingsComponent {
   protected readonly comparison = computed<ComparisonRow[]>(() => {
     const active = this.producer.activeSettings();
     const parsed = this.parsed();
-    const values = this.values() as Record<Key, string>;
+    const values = <Record<Key, string>>this.values();
     const rows = this.fields.map(({ key, rowLabel }) => {
       const next = parseField(key, values[key]);
       return {

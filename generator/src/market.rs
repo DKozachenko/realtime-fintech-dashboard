@@ -17,14 +17,8 @@ pub enum GeneratorError {
 impl fmt::Display for GeneratorError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            Self::InstrumentCount(n) => write!(
-                f,
-                "instrument count must be between 1 and {MAX_INSTRUMENTS}, got {n}"
-            ),
-            Self::BatchSize(n) => write!(
-                f,
-                "batch size must be between 1 and {MAX_BATCH_SIZE}, got {n}"
-            ),
+            Self::InstrumentCount(n) => write!(f, "instrument count must be between 1 and {MAX_INSTRUMENTS}, got {n}"),
+            Self::BatchSize(n) => write!(f, "batch size must be between 1 and {MAX_BATCH_SIZE}, got {n}"),
         }
     }
 }
@@ -52,8 +46,7 @@ impl Market {
         let mut rng = Pcg32::seed_from_u64(seed);
         let instruments = (0..instrument_count)
             .map(|_| {
-                let mid =
-                    range_inclusive(&mut rng, START_PRICE_MIN_CENTS, START_PRICE_MAX_CENTS) as f64;
+                let mid = range_inclusive(&mut rng, START_PRICE_MIN_CENTS, START_PRICE_MAX_CENTS) as f64;
                 Instrument {
                     mid,
                     anchor: mid,
@@ -62,11 +55,7 @@ impl Market {
                 }
             })
             .collect();
-        Ok(Market {
-            rng,
-            instruments,
-            buffer: Vec::with_capacity(MAX_BATCH_SIZE as usize * FIELDS_PER_UPDATE),
-        })
+        Ok(Market { rng, instruments, buffer: Vec::with_capacity(MAX_BATCH_SIZE as usize * FIELDS_PER_UPDATE) })
     }
 
     /// Returns `size * FIELDS_PER_UPDATE` values:
@@ -107,8 +96,7 @@ impl Market {
             ins.ask_qty = step_qty(ins.ask_qty, ask_delta);
             let price = if buy { ask } else { bid };
 
-            self.buffer
-                .extend_from_slice(&[index, price, qty, bid, ask, ins.bid_qty, ins.ask_qty]);
+            self.buffer.extend_from_slice(&[index, price, qty, bid, ask, ins.bid_qty, ins.ask_qty]);
         }
         Ok(&self.buffer)
     }
@@ -151,10 +139,7 @@ mod tests {
         assert!(Market::new(51, 1).is_err());
         assert!(Market::new(1, 1).is_ok());
         assert!(Market::new(50, 1).is_ok());
-        assert_eq!(
-            Market::new(51, 1).err().unwrap().to_string(),
-            "instrument count must be between 1 and 50, got 51"
-        );
+        assert_eq!(Market::new(51, 1).err().unwrap().to_string(), "instrument count must be between 1 and 50, got 51");
     }
 
     #[test]
@@ -162,10 +147,7 @@ mod tests {
         let mut m = Market::new(5, 1).unwrap();
         assert!(m.next_batch(0).is_err());
         assert!(m.next_batch(1001).is_err());
-        assert_eq!(
-            m.next_batch(1001).unwrap_err().to_string(),
-            "batch size must be between 1 and 1000, got 1001"
-        );
+        assert_eq!(m.next_batch(1001).unwrap_err().to_string(), "batch size must be between 1 and 1000, got 1001");
     }
 
     #[test]

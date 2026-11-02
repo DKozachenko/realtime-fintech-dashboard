@@ -8,7 +8,7 @@ function bufferOf(values: number[]): ArrayBuffer {
 
 describe('WasmBatchSource', () => {
   it('reads from the current memory buffer on every batch', () => {
-    const memory = { buffer: bufferOf([1, 2, 3]) as ArrayBufferLike };
+    const memory = { buffer: <ArrayBufferLike>bufferOf([1, 2, 3]) };
     const lengths = [3, 2];
     const generator = {
       next_batch: jasmine.createSpy('next_batch').and.callFake(() => lengths.shift()!),

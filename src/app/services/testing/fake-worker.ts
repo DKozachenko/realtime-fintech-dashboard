@@ -16,10 +16,10 @@ export class FakeWorker implements WorkerLike {
   }
 
   emit(event: WorkerEvent): void {
-    this.onmessage?.({ data: event } as MessageEvent<WorkerEvent>);
+    this.onmessage?.(<MessageEvent<WorkerEvent>>{ data: event });
   }
 
   fail(message: string): void {
-    this.onerror?.({ message } as ErrorEvent);
+    this.onerror?.(<ErrorEvent>{ message });
   }
 }

@@ -2,10 +2,22 @@
   <div>
     <h1>Live market</h1>
     <div class="stats">
-      <span>Status<b><app-status-indicator [status]="producer.status()" /></b></span>
-      <span>Run<b>#{{ producer.runId() }}</b></span>
-      <span>Nominal rate<b>{{ rate() | number: '1.0-1' }} / s</b></span>
-      <span>Trades counted<b>{{ producer.tradesCounted() | number }}</b></span>
+      <span>
+        Status
+        <b><app-status-indicator [status]="producer.status()" /></b>
+      </span>
+      <span>
+        Run
+        <b>#{{ producer.runId() }}</b>
+      </span>
+      <span>
+        Nominal rate
+        <b>{{ rate() | number: '1.0-1' }} / s</b>
+      </span>
+      <span>
+        Trades counted
+        <b>{{ producer.tradesCounted() | number }}</b>
+      </span>
     </div>
   </div>
   <button type="button" class="btn" [disabled]="!canToggle()" (click)="toggle()">

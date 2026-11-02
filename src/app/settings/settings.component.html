@@ -1,22 +1,23 @@
 <section class="band">
   <h1>Producer settings</h1>
   <span class="st">
-    <app-status-indicator [status]="producer.status()" /> · run #{{ producer.runId() }}
+    <app-status-indicator [status]="producer.status()" />
+    · run #{{ producer.runId() }}
   </span>
 </section>
 
 <div class="body">
-  <form [formGroup]="form" novalidate (ngSubmit)="apply()">
+  <form novalidate [formGroup]="form" (ngSubmit)="apply()">
     @for (field of fields; track field.key) {
       <div class="field">
         <label [for]="field.key">{{ field.label }}</label>
         <p class="help">{{ field.help }}</p>
         <div class="row">
           <input
-            [id]="field.key"
-            [formControlName]="field.key"
             inputmode="numeric"
             autocomplete="off"
+            [id]="field.key"
+            [formControlName]="field.key"
             [class.bad]="visibleErrors()[field.key]"
             [attr.aria-invalid]="visibleErrors()[field.key] ? 'true' : null"
             [attr.aria-describedby]="visibleErrors()[field.key] ? field.errorId : null"
@@ -24,7 +25,7 @@
           />
           <span class="range">{{ field.range }}</span>
         </div>
-        <div class="err" [id]="field.errorId" aria-live="polite">{{ visibleErrors()[field.key] }}</div>
+        <div class="err" aria-live="polite" [id]="field.errorId">{{ visibleErrors()[field.key] }}</div>
       </div>
     }
 

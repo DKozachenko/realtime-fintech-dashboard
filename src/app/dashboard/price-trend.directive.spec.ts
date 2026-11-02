@@ -1,9 +1,10 @@
-import { Component, provideExperimentalZonelessChangeDetection, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, provideExperimentalZonelessChangeDetection, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
 import { PriceTrendDirective } from './price-trend.directive';
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [PriceTrendDirective],
   template: `<span [appPriceTrend]="price()"></span>`,
 })

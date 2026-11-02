@@ -12,7 +12,7 @@ describe('AppComponent', () => {
     }).compileComponents();
     const fixture = TestBed.createComponent(AppComponent);
     await fixture.whenStable();
-    return fixture.nativeElement as HTMLElement;
+    return <HTMLElement>fixture.nativeElement;
   }
 
   it('links the rail to the dashboard and settings pages', async () => {

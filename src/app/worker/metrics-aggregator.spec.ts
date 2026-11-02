@@ -19,10 +19,7 @@ describe('MetricsAggregator', () => {
   it('worked example from the spec', () => {
     const agg = new MetricsAggregator(2);
     agg.apply(
-      encodeUpdates([
-        update({}),
-        update({ priceCents: 10200, tradeQuantity: 30, bidCents: 10196, askCents: 10200 }),
-      ]),
+      encodeUpdates([update({}), update({ priceCents: 10200, tradeQuantity: 30, bidCents: 10196, askCents: 10200 })]),
     );
     const { rows, tradesCounted } = agg.snapshot();
     expect(rows[0]).toEqual({

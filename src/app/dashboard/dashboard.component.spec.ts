@@ -29,13 +29,10 @@ describe('DashboardComponent', () => {
     fake = createFake();
     await TestBed.configureTestingModule({
       imports: [DashboardComponent],
-      providers: [
-        provideExperimentalZonelessChangeDetection(),
-        { provide: ProducerService, useValue: fake },
-      ],
+      providers: [provideExperimentalZonelessChangeDetection(), { provide: ProducerService, useValue: fake }],
     }).compileComponents();
     fixture = TestBed.createComponent(DashboardComponent);
-    el = fixture.nativeElement as HTMLElement;
+    el = <HTMLElement>fixture.nativeElement;
     await fixture.whenStable();
   });
 
@@ -45,10 +42,8 @@ describe('DashboardComponent', () => {
   }
 
   function button(label: string): HTMLButtonElement {
-    const found = Array.from(el.querySelectorAll('button')).find(
-      (b) => b.textContent!.trim() === label,
-    );
-    return found as HTMLButtonElement;
+    const found = Array.from(el.querySelectorAll('button')).find((b) => b.textContent!.trim() === label);
+    return <HTMLButtonElement>found;
   }
 
   it('renders one row per instrument with placeholders', () => {
@@ -110,7 +105,7 @@ describe('DashboardComponent', () => {
     expect(fake.resume).toHaveBeenCalled();
   });
 
-  for (const status of ['initializing', 'error'] as const) {
+  for (const status of <const>['initializing', 'error']) {
     it(`disables the pause button in ${status}`, async () => {
       fake.status.set(status);
       await fixture.whenStable();
@@ -123,9 +118,7 @@ describe('DashboardComponent', () => {
     fake.status.set('error');
     fake.errorMessage.set('Generator failed to load.');
     await fixture.whenStable();
-    expect(el.querySelector('.banner')!.textContent).toContain(
-      'Generator failed to load. Retry to start a new run.',
-    );
+    expect(el.querySelector('.banner')!.textContent).toContain('Generator failed to load. Retry to start a new run.');
     button('Retry').click();
     expect(fake.retry).toHaveBeenCalled();
   });

@@ -18,8 +18,7 @@ function check(value: string, min: number, max: number): ValidationErrors | null
 
 /** Validates a string control: a whole number (digits only) within [min, max]. */
 export function wholeNumberInRange(min: number, max: number): ValidatorFn {
-  return (control: AbstractControl<string>): ValidationErrors | null =>
-    check(control.value ?? '', min, max);
+  return (control: AbstractControl<string>): ValidationErrors | null => check(control.value ?? '', min, max);
 }
 
 export function settingsErrorMessage(errors: ValidationErrors | null): string | null {
@@ -33,7 +32,7 @@ export function settingsErrorMessage(errors: ValidationErrors | null): string | 
     return 'Enter a whole number.';
   }
   if (errors['range']) {
-    const { min, max } = errors['range'] as { min: number; max: number };
+    const { min, max } = <{ min: number; max: number }>errors['range'];
     return `Must be between ${min.toLocaleString('en-US')} and ${max.toLocaleString('en-US')}.`;
   }
   return null;
@@ -59,9 +58,7 @@ export function formatSettings(settings: ProducerSettings): Record<keyof Produce
 }
 
 /** Form values → settings: the numbers if every field is valid, otherwise null. */
-export function parseSettings(
-  value: Record<keyof ProducerSettings, string>,
-): ProducerSettings | null {
+export function parseSettings(value: Record<keyof ProducerSettings, string>): ProducerSettings | null {
   const instrumentCount = parseField('instrumentCount', value.instrumentCount);
   const updatesPerBatch = parseField('updatesPerBatch', value.updatesPerBatch);
   const batchIntervalMs = parseField('batchIntervalMs', value.batchIntervalMs);

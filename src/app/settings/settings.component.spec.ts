@@ -25,7 +25,7 @@ describe('SettingsComponent', () => {
 
   async function create(): Promise<void> {
     fixture = TestBed.createComponent(SettingsComponent);
-    el = fixture.nativeElement as HTMLElement;
+    el = <HTMLElement>fixture.nativeElement;
     await fixture.whenStable();
   }
 
@@ -33,10 +33,7 @@ describe('SettingsComponent', () => {
     fake = createFake();
     TestBed.configureTestingModule({
       imports: [SettingsComponent],
-      providers: [
-        provideExperimentalZonelessChangeDetection(),
-        { provide: ProducerService, useValue: fake },
-      ],
+      providers: [provideExperimentalZonelessChangeDetection(), { provide: ProducerService, useValue: fake }],
     });
     await create();
   });
@@ -58,17 +55,11 @@ describe('SettingsComponent', () => {
   }
 
   function button(label: string): HTMLButtonElement {
-    return Array.from(el.querySelectorAll('button')).find(
-      (b) => b.textContent!.trim() === label,
-    ) as HTMLButtonElement;
+    return <HTMLButtonElement>Array.from(el.querySelectorAll('button')).find((b) => b.textContent!.trim() === label);
   }
 
   it('starts from the active run and Apply is disabled', () => {
-    expect(Array.from(el.querySelectorAll('input')).map((i) => i.value)).toEqual([
-      '5',
-      '100',
-      '500',
-    ]);
+    expect(Array.from(el.querySelectorAll('input')).map((i) => i.value)).toEqual(['5', '100', '500']);
     expect(button('Apply').disabled).toBeTrue();
     expect(button('Apply').title).toBe('Change a setting to apply it');
   });
@@ -139,17 +130,13 @@ describe('SettingsComponent', () => {
       ['Batch interval', '500', '250'],
       ['Nominal rate, updates/s', '200', '400'],
     ]);
-    const changed = Array.from(el.querySelectorAll('.cmp td.changed')).map((td) =>
-      td.textContent!.trim(),
-    );
+    const changed = Array.from(el.querySelectorAll('.cmp td.changed')).map((td) => td.textContent!.trim());
     expect(changed).toEqual(['12', '250', '400']);
   });
 
   it('shows a dash for invalid values in the comparison', async () => {
     await type(0, 'abc');
-    const next = Array.from(el.querySelectorAll('.cmp tbody tr td:last-child')).map((td) =>
-      td.textContent!.trim(),
-    );
+    const next = Array.from(el.querySelectorAll('.cmp tbody tr td:last-child')).map((td) => td.textContent!.trim());
     expect(next[0]).toBe('—');
     expect(next[3]).toBe('—');
   });

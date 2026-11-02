@@ -1,8 +1,8 @@
-import { TestBed } from '@angular/core/testing';
 import { provideExperimentalZonelessChangeDetection } from '@angular/core';
+import { TestBed } from '@angular/core/testing';
 
-import { InstrumentMetrics } from '../shared/messages';
 import { emptyRows } from '../shared/instruments';
+import { InstrumentMetrics } from '../shared/messages';
 import { DEFAULT_SETTINGS } from '../shared/settings';
 import { LoggerService } from './logger.service';
 import { PRODUCER_WORKER_FACTORY, ProducerService } from './producer.service';

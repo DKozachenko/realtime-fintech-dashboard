@@ -2,7 +2,7 @@
 export const FIELDS_PER_UPDATE = 7;
 
 /** Field offsets within one update of the flat batch buffer. */
-export const BatchField = {
+export const BatchField = <const>{
   Instrument: 0,
   Price: 1,
   TradeQty: 2,
@@ -10,4 +10,4 @@ export const BatchField = {
   Ask: 4,
   BidQty: 5,
   AskQty: 6,
-} as const;
+};

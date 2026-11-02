@@ -11,10 +11,11 @@ const LABELS: Record<ProducerStatus, string> = {
 @Component({
   selector: 'app-status-indicator',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `<span class="dot" [class]="status()" aria-hidden="true"></span>{{ label() }}`,
+  template: `<span aria-hidden="true" [class]="dotClass()"></span>{{ label() }}`,
   styleUrl: './status-indicator.component.scss',
 })
 export class StatusIndicatorComponent {
   readonly status = input.required<ProducerStatus>();
+  protected readonly dotClass = computed(() => `dot ${this.status()}`);
   protected readonly label = computed(() => LABELS[this.status()]);
 }

@@ -12,14 +12,10 @@ export interface WorkerLike {
   onerror: ((e: ErrorEvent) => void) | null;
 }
 
-export const PRODUCER_WORKER_FACTORY = new InjectionToken<() => WorkerLike>(
-  'PRODUCER_WORKER_FACTORY',
-  {
-    providedIn: 'root',
-    factory: () => () =>
-      new Worker(new URL('../worker/producer.worker', import.meta.url), { type: 'module' }),
-  },
-);
+export const PRODUCER_WORKER_FACTORY = new InjectionToken<() => WorkerLike>('PRODUCER_WORKER_FACTORY', {
+  providedIn: 'root',
+  factory: () => () => new Worker(new URL('../worker/producer.worker', import.meta.url), { type: 'module' }),
+});
 
 export type ProducerStatus = 'initializing' | 'running' | 'paused' | 'error';
 

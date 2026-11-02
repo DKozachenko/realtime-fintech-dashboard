@@ -9,7 +9,9 @@ class FakeSource implements BatchSource {
   freed = false;
   failWith: Error | null = null;
   nextBatch(size: number): Uint32Array {
-    if (this.failWith) throw this.failWith;
+    if (this.failWith) {
+      throw this.failWith;
+    }
     this.sizes.push(size);
     return encodeUpdates(
       Array.from({ length: size }, () => ({
@@ -113,7 +115,7 @@ describe('ProducerEngine', () => {
     expect(snapshots().length).toBe(1);
     scheduler.tick(1);
     engine.handle({ type: 'pause', runId: 1 });
-    const last = snapshots()[1] as Extract<WorkerEvent, { type: 'snapshot' }>;
+    const last = <Extract<WorkerEvent, { type: 'snapshot' }>>snapshots()[1];
     expect(last.tradesCounted).toBe(12);
   });
 
@@ -150,7 +152,7 @@ describe('ProducerEngine', () => {
     expect(sources[0].sizes.length).toBe(3);
     expect(sources[1].sizes).toEqual([4]);
     engine.handle({ type: 'pause', runId: 2 });
-    const last = snapshots().pop() as Extract<WorkerEvent, { type: 'snapshot' }>;
+    const last = <Extract<WorkerEvent, { type: 'snapshot' }>>snapshots().pop();
     expect(last).toEqual(jasmine.objectContaining({ runId: 2, tradesCounted: 4 }));
   });
 
@@ -180,9 +182,7 @@ describe('ProducerEngine', () => {
     engine.handle({ type: 'start', runId: 3, settings: settings() });
     sources[0].failWith = new Error('boom');
     scheduler.tick(1);
-    expect(events).toEqual([
-      { type: 'error', runId: 3, source: 'wasm', message: 'Generator stopped: boom' },
-    ]);
+    expect(events).toEqual([{ type: 'error', runId: 3, source: 'wasm', message: 'Generator stopped: boom' }]);
     expect(scheduler.activeCount).toBe(0);
   });
 
@@ -214,9 +214,7 @@ describe('ProducerEngine', () => {
       post: (e) => events.push(e),
     });
     engine.handle({ type: 'start', runId: 4, settings: settings() });
-    expect(events).toEqual([
-      { type: 'error', runId: 4, source: 'wasm', message: 'Generator stopped: no wasm' },
-    ]);
+    expect(events).toEqual([{ type: 'error', runId: 4, source: 'wasm', message: 'Generator stopped: no wasm' }]);
     expect(scheduler.activeCount).toBe(0);
   });
 

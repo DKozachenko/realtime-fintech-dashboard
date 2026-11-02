@@ -38,7 +38,9 @@ export class ProducerEngine {
   constructor(private readonly deps: EngineDeps) {}
 
   handle(command: WorkerCommand): void {
-    if (this.disposed) return;
+    if (this.disposed) {
+      return;
+    }
     switch (command.type) {
       case 'start':
         return this.start(command.runId, command.settings);
@@ -69,14 +71,18 @@ export class ProducerEngine {
 
   private pause(runId: number): void {
     const run = this.run;
-    if (!run || run.runId !== runId || run.timer === null) return;
+    if (!run || run.runId !== runId || run.timer === null) {
+      return;
+    }
     this.stopTimer(run);
     this.publish(run);
   }
 
   private resume(runId: number): void {
     const run = this.run;
-    if (!run || run.runId !== runId || run.timer !== null) return;
+    if (!run || run.runId !== runId || run.timer !== null) {
+      return;
+    }
     this.schedule(run);
   }
 
@@ -85,7 +91,9 @@ export class ProducerEngine {
   }
 
   private tick(run: Run): void {
-    if (this.run !== run) return;
+    if (this.run !== run) {
+      return;
+    }
     try {
       run.aggregator.apply(run.source.nextBatch(run.settings.updatesPerBatch));
     } catch (e) {
@@ -94,7 +102,9 @@ export class ProducerEngine {
       return;
     }
     run.batches++;
-    if (run.batches % run.every === 0) this.publish(run);
+    if (run.batches % run.every === 0) {
+      this.publish(run);
+    }
   }
 
   private publish(run: Run): void {
@@ -103,14 +113,18 @@ export class ProducerEngine {
   }
 
   private stopTimer(run: Run): void {
-    if (run.timer !== null) this.deps.scheduler.clearInterval(run.timer);
+    if (run.timer !== null) {
+      this.deps.scheduler.clearInterval(run.timer);
+    }
     run.timer = null;
   }
 
   private teardown(): void {
     const run = this.run;
     this.run = null;
-    if (!run) return;
+    if (!run) {
+      return;
+    }
     this.stopTimer(run);
     try {
       run.source.free();
