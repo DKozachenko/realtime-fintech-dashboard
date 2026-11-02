@@ -75,6 +75,14 @@ The task fixes only the invariants: positive prices, bid < ask, positive trade q
 
 There is no coupling between imbalance and trade side. *"No realistic exchange model … is required."*
 
+## Dashboard
+
+### D24. Last price is coloured by its last move, without a flash
+The mockup flashed the last price, with an arrow, for ~350 ms on every move. Snapshots arrive every ~250 ms and almost every price moves on almost every snapshot, so the flash either never faded or turned into a flicker whose look depended on the batch interval. Instead the price text is green after a rise and red after a fall, and keeps that colour until the next move. The colour change is a 150 ms transition, a little shorter than the fastest possible snapshot interval (about 167 ms with a 167 ms batch interval), so it always completes. A new run clears it. The task does not ask for any of this.
+
+### D25. Rows are tracked by index
+`@for (row of rows; track $index)`. A row's position is the instrument's identity for the whole run (D3: the worker sends rows by instrument index, and the symbol comes from `instrumentSymbol(i)`), and rows are never inserted, removed or reordered. Every snapshot carries new row objects, so `track row` would rebuild the whole table DOM four times a second; tracking by index reuses the same `<tr>` elements and only updates changed text. A metric field cannot serve as a key either: none of them is stable or unique.
+
 ## Settings form
 
 ### D14. Apply is enabled only when the form is valid and differs from the active run

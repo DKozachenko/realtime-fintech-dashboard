@@ -67,7 +67,7 @@ src/
     services/testing/fake-worker.ts
     pipes/cents.pipe.ts, pipes/imbalance.pipe.ts
     ui/status-indicator.component.ts
-    dashboard/                     dashboard.component.*, price-direction.ts
+    dashboard/                     dashboard.component.*, price-trend.directive.ts
     settings/                      settings.component.*, settings-validators.ts
 .github/workflows/pipeline.yml
 ```
@@ -415,17 +415,16 @@ src/
 ### Task 11: Дашборд
 
 **Files:**
-- Create/Modify: `src/app/dashboard/dashboard.component.{ts,html,scss}`, `src/app/dashboard/price-direction.ts`
-- Test: `dashboard.component.spec.ts`, `price-direction.spec.ts`
+- Create/Modify: `src/app/dashboard/dashboard.component.{ts,html,scss}`, `src/app/dashboard/price-trend.directive.ts`, `src/app/pipes/instrument.pipe.ts`
+- Test: `dashboard.component.spec.ts`, `price-trend.directive.spec.ts`, `instrument.pipe.spec.ts`
 
 **Interfaces:**
 - Consumes: `ProducerService` (Task 8), `nominalRate`, `instrumentSymbol` (Task 4), pipes (Task 9), `StatusIndicatorComponent` (Task 10).
-- Produces: `export function priceDirection(previous: number | null, next: number | null): 'up' | 'down' | null;`
+- Produces: `InstrumentPipe` (`instrument`): индекс → тикер. `PriceTrendDirective` (`[appPriceTrend]`): цвет last price по последнему движению, без вспышки (DECISIONS D24), `track $index` (D25).
 
-Разметка и копирайт — по макету B (`docs/superpowers/mockups/dashboard.html`): плашка `Live market`; stats `Status`, `Run` (`#N`), `Nominal rate` (`200 / s`, DecimalPipe `1.0-1`), `Trades counted` (с разделителями); кнопка `Pause`/`Resume` (disabled в initializing и error); таблица `Instrument | Last price | Spread | Volume | VWAP | Imbalance`; у last price стрелка ▲/▼ и подсветка `--mint`/`--rose` ~350 мс при смене относительно предыдущего снимка; imbalance — число + шкала 84px с риской в центре (ширина `|v| × 50%`, вправо `--mint`, влево `--rose`); при ошибке — баннер `<errorMessage> Retry to start a new run.` с кнопкой `Retry`. Таблица в контейнере с `overflow-x: auto`. `@for` с `track $index`.
+Разметка и копирайт — по макету B (`docs/superpowers/mockups/dashboard.html`): плашка `Live market`; stats `Status`, `Run` (`#N`), `Nominal rate` (`200 / s`, DecimalPipe `1.0-1`), `Trades counted` (с разделителями); кнопка `Pause`/`Resume` (disabled в initializing и error); таблица `Instrument | Last price | Spread | Volume | VWAP | Imbalance`; imbalance — число + шкала 84px с риской в центре (ширина `|v| × 50%`, вправо `--mint`, влево `--rose`); при ошибке — баннер `<errorMessage> Retry to start a new run.` с кнопкой `Retry`. Таблица в контейнере с `overflow-x: auto`, фиксированные ширины колонок (`table-layout: fixed`). `@for` с `track $index`.
 
 - [ ] **Step 1: Тесты** (фейковый `ProducerService` на сигналах через `{ provide: ProducerService, useValue: fake }`).
-  - `priceDirection`: (null, 100) → null; (100, 100) → null; (100, 101) → 'up'; (101, 100) → 'down'; (100, null) → null.
   - `renders one row per instrument with placeholders`: 5 строк `ALFA…EPSI`, в цене/спреде/VWAP/imbalance `—`, объём `0`.
   - `renders formatted metrics`: строка с примером из задания → `$102.00`, `$0.04`, `40`, `$101.50`, `+0.20`.
   - `shows run stats`: `#3`, `200 / s`, `Trades counted` `3,400`.

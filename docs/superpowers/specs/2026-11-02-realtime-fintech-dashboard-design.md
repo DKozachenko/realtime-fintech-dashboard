@@ -212,9 +212,9 @@ generator.free()                          освобождение (Apply / disp
 
 **Дашборд:**
 - плашка: заголовок «Live market»; Status (точка: Running — пульсирующая мятная, Paused — янтарная, Initializing — серая, Error — розовая); Run `#N`; Nominal rate `= updatesPerBatch × 1000 / batchIntervalMs` в `/ s`; Trades counted; кнопка Pause/Resume (неактивна в Initializing и Error);
-- таблица: Instrument | Last price | Spread | Volume | VWAP | Imbalance;
+- таблица: Instrument | Last price | Spread | Volume | VWAP | Imbalance; колонки фиксированной ширины;
+- last price окрашен по последнему движению (рост — мятный, падение — розовый, переход 150 мс), без вспышки — DECISIONS D24;
 - цены — валюта USD, 2 знака (`$101.50`), округление только в pipe; объём — целое с разделителями; imbalance — со знаком, 2 знака (`+0.20`) + шкала −1…+1 с риской в нуле (зелёная вправо, розовая влево); нет значения — «—»;
-- last price: стрелка ▲/▼ и короткая цветная подсветка при изменении относительно предыдущего снимка;
 - ошибка — баннер под плашкой: что сломалось + что делать, кнопка Retry. Пример: «Generator failed to load. … Check that generator_bg.wasm is deployed, then retry.»
 
 **Настройки:**
