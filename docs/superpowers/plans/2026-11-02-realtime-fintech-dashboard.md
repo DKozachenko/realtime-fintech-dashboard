@@ -23,7 +23,9 @@
 - Диапазоны настроек: instrumentCount 1–50 (default 5), updatesPerBatch 1–1000 (default 100), batchIntervalMs 50–2000 (default 500); только целые.
 - `DISPLAY_INTERVAL_MS = 250`; `snapshotEvery = max(1, round(250 / batchIntervalMs))`.
 - Палитра (CSS custom properties в `src/styles.scss`): `--ink #06110d`, `--panel #0b1c16`, `--line #1a3329`, `--text #e3efe8`, `--muted #7e9b8d`, `--mint #8fe3b6`, `--rose #ee8a96`, `--amber #e9c46a`, `--moss linear-gradient(120deg, #0b2f22 0%, #125238 55%, #1d7a54 100%)`.
-- Локально Karma запускать с `CHROME_BIN=/usr/bin/chromium-browser`.
+- Локально Karma запускать с `CHROME_BIN=/usr/bin/chromium-browser`. Единственный тестовый скрипт — `npm test` (`ng test --watch=false --browsers=ChromeHeadlessCI`).
+- **Zoneless** (D23): `provideExperimentalZonelessChangeDetection()`; zone.js в проекте нет. Каждый TestBed-тест: `providers: [provideExperimentalZonelessChangeDetection()]`, ожидание через `await fixture.whenStable()`; `fakeAsync`/`tick` недоступны — таймеры только подставные.
+- `tsconfig.json` — solution-style с `references`; новый tsconfig (например, `tsconfig.worker.json` в Task 7) добавляется в `references`.
 
 ## Review Focus
 
@@ -88,7 +90,7 @@ src/
 - [ ] **Step 3: Зафиксировать версии.** `npm install`; убедиться, что в `package.json` нет `^`/`~` (при необходимости `npm pkg set` с точными версиями из `package-lock.json` и повторный `npm install`). Angular-пакеты — одна версия 19.2.x.
 - [ ] **Step 4: Перенести конфиг.** `app.config.ts` и `app.routes.ts` → `src/app/config/`; обновить импорты в `main.ts`. Маршруты пока пустые (`[]`).
 - [ ] **Step 5: Karma для CI.** `npx ng generate config karma`; в `karma.conf.js` добавить `customLaunchers: { ChromeHeadlessCI: { base: 'ChromeHeadless', flags: ['--no-sandbox'] } }`. Скрипты: `"test:ci": "ng test --watch=false --browsers=ChromeHeadlessCI"`.
-- [ ] **Step 6: Проверка.** `CHROME_BIN=/usr/bin/chromium-browser npm run test:ci` → дефолтные тесты `AppComponent` PASS. `npm run build` → успех.
+- [ ] **Step 6: Проверка.** `CHROME_BIN=/usr/bin/chromium-browser npm test` → дефолтные тесты `AppComponent` PASS. `npm run build` → успех.
 - [ ] **Step 7: Commit** — `chore: scaffold Angular 19 workspace` (все новые файлы + `package-lock.json`).
 
 ---
@@ -210,9 +212,9 @@ src/
   - `INSTRUMENT_SYMBOLS.length` = 50, все уникальны, длина ≤ 5, `[0]='ALFA'`, `[1]='BETA'`.
   - `emptyRows(3)` → 3 × `{ lastPriceCents: null, spreadCents: null, volume: 0, vwapCents: null, imbalance: null }`.
   - `snapshotEvery`: 50→5, 60→4, 100→3, 130→2, 150→2, 170→1, 200→1, 500→1, 600→1, 2000→1.
-- [ ] **Step 2:** `npm run test:ci` → FAIL.
+- [ ] **Step 2:** `npm test` → FAIL.
 - [ ] **Step 3:** Реализовать.
-- [ ] **Step 4:** `npm run test:ci` → PASS.
+- [ ] **Step 4:** `npm test` → PASS.
 - [ ] **Step 5: Commit** — `feat: add shared producer contracts`.
 
 ---
@@ -246,9 +248,9 @@ src/
   - `keeps values for an instrument missing from a later batch`: батч 1 с ALFA и BETA, батч 2 только с ALFA → BETA как после батча 1.
   - `accumulates across batches`: volume и VWAP учитывают оба батча; `tradesCounted` = сумма размеров.
   - `snapshot returns copies`: изменение массива из `snapshot()` не влияет на следующий `snapshot()`.
-- [ ] **Step 2:** `npm run test:ci` → FAIL.
+- [ ] **Step 2:** `npm test` → FAIL.
 - [ ] **Step 3:** Реализовать (состояние — параллельные массивы/`Float64Array` на инструмент; `vwapCents = pv / volume` без округления).
-- [ ] **Step 4:** `npm run test:ci` → PASS.
+- [ ] **Step 4:** `npm test` → PASS.
 - [ ] **Step 5: Commit** — `feat(worker): aggregate market metrics per instrument`.
 
 ---
@@ -287,9 +289,9 @@ src/
   - `ignores pause/resume for another runId`.
   - `reports generator failures`: `nextBatch` бросает → событие `error` с `source: 'wasm'`, `activeCount` = 0.
   - `dispose clears the timer and frees the source`.
-- [ ] **Step 2:** `npm run test:ci` → FAIL.
+- [ ] **Step 2:** `npm test` → FAIL.
 - [ ] **Step 3:** Реализовать `ProducerEngine` и `FakeScheduler`.
-- [ ] **Step 4:** `npm run test:ci` → PASS.
+- [ ] **Step 4:** `npm test` → PASS.
 - [ ] **Step 5: Commit** — `feat(worker): drive batches, pause/resume and snapshot cadence`.
 
 ---
@@ -313,9 +315,9 @@ src/
   Воркер: `init({ module_or_path: new URL('wasm/generator_bg.wasm', <base>) })`, где `<base>` — каталог скрипта воркера (`new URL('.', self.location.href)`); при ошибке — `post({ type: 'error', runId: null, source: 'wasm', message: 'Generator failed to load: <e.message>' })`. Команды до готовности складываются в очередь и выполняются после `ready`. `nextSeed` — `crypto.getRandomValues(new Uint32Array(1))[0]`. Scheduler — `self.setInterval`/`self.clearInterval`. Конфигурация через `npx ng generate web-worker worker/producer --snippet=false`, затем заменить содержимое.
 
 - [ ] **Step 1: Тест** `reads from the current memory buffer on every batch`: фейковая память, у которой между двумя вызовами `buffer` заменяется на новый `ArrayBuffer` с другими числами → второй `nextBatch` возвращает числа из нового буфера; длина = результат `next_batch`; `free()` проксируется.
-- [ ] **Step 2:** `npm run test:ci` → FAIL.
+- [ ] **Step 2:** `npm test` → FAIL.
 - [ ] **Step 3:** Реализовать `WasmBatchSource` и `producer.worker.ts`.
-- [ ] **Step 4:** `npm run test:ci` → PASS; `npm run build` → успех, в `dist/.../browser` есть worker-чанк и `wasm/generator_bg.wasm`.
+- [ ] **Step 4:** `npm test` → PASS; `npm run build` → успех, в `dist/.../browser` есть worker-чанк и `wasm/generator_bg.wasm`.
 - [ ] **Step 5: Commit** — `feat(worker): load the Wasm generator inside the web worker`.
 
 ---
@@ -366,9 +368,9 @@ src/
   - `retry replaces the worker`: старый `terminated`, factory вызвана снова, новый получил `start` с новым runId и `activeSettings`, статус initializing.
   - `apply in error state replaces the worker with new settings`.
   - `destroy disposes and terminates the worker` (`TestBed.resetTestingModule()` → отправлен `dispose`, `terminated`).
-- [ ] **Step 2:** `npm run test:ci` → FAIL.
+- [ ] **Step 2:** `npm test` → FAIL.
 - [ ] **Step 3:** Реализовать.
-- [ ] **Step 4:** `npm run test:ci` → PASS.
+- [ ] **Step 4:** `npm test` → PASS.
 - [ ] **Step 5: Commit** — `feat: add producer service with run lifecycle and logger`.
 
 ---
@@ -475,9 +477,9 @@ src/
 Пайплайн (спека §9): `name: Realtime Fintech Dashboard`; `permissions: contents: write`; триггеры push `develop`, pull_request, workflow_dispatch. Jobs:
 - `cache-deps`: checkout → `actions/setup-node@v4` (`node-version-file: .node-version`) → `npm ci --ignore-scripts` → `actions/cache/save@v4` (`node_modules`, ключ `${{ github.repository }}-${{ hashFiles('package-lock.json') }}`).
 - `deploy` (needs cache-deps; `if: github.event_name == 'push' && github.ref_name == 'develop'`): checkout → setup-node → cache restore (`fail-on-cache-miss: true`) → `dtolnay/rust-toolchain@stable` (`targets: wasm32-unknown-unknown`) → `Swatinem/rust-cache@v2` (`workspaces: generator`) → `taiki-e/install-action@v2` (`tool: wasm-pack@0.15.1`) → `npm run build -- --base-href=/realtime-fintech-dashboard/` → `peaceiris/actions-gh-pages@v4` (`publish_dir: ./dist/realtime-fintech-dashboard/browser`).
-- `test` (needs cache-deps): checkout → setup-node → cache restore → rust toolchain + rust-cache → `npm run test:wasm` → `npm run test:ci`.
+- `test` (needs cache-deps): checkout → setup-node → cache restore → rust toolchain + rust-cache → `npm run test:wasm` → `npm test`.
 
-README (английский): что это (одним абзацем), live demo `https://dkozachenko.github.io/realtime-fintech-dashboard/`, требования (Node 22, Rust stable + `wasm32-unknown-unknown`, wasm-pack 0.15.1, Chrome/Chromium), команды `npm ci`, `npm start`, `npm run build`, `npm run test:wasm`, `npm run test:ci` (с `CHROME_BIN`), схема архитектуры (диаграмма из спеки §5 в ASCII), раздел тестов → какие файлы что покрывают, ссылка на `DECISIONS.md`, деплой.
+README (английский): что это (одним абзацем), live demo `https://dkozachenko.github.io/realtime-fintech-dashboard/`, требования (Node 22, Rust stable + `wasm32-unknown-unknown`, wasm-pack 0.15.1, Chrome/Chromium), команды `npm ci`, `npm start`, `npm run build`, `npm run test:wasm`, `npm test` (с `CHROME_BIN`), схема архитектуры (диаграмма из спеки §5 в ASCII), раздел тестов → какие файлы что покрывают, ссылка на `DECISIONS.md`, деплой.
 
 - [ ] **Step 1:** Написать workflow и README.
 - [ ] **Step 2: Проверка локально.** `npx -y yaml-lint .github/workflows/pipeline.yml` (или `python3 -c "import yaml,sys;yaml.safe_load(open('.github/workflows/pipeline.yml'))"`) → без ошибок; `npm run build -- --base-href=/realtime-fintech-dashboard/` → в `dist/.../browser/index.html` `<base href="/realtime-fintech-dashboard/">`.
