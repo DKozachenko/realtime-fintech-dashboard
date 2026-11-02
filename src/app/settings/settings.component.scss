@@ -1,0 +1,182 @@
+:host {
+  display: block;
+}
+
+.band {
+  background: var(--moss);
+  padding: 22px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 18px;
+  flex-wrap: wrap;
+}
+
+h1 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+
+.st {
+  font-size: 13.5px;
+  color: #cfe8dc;
+}
+
+.body {
+  padding: 24px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 300px;
+  gap: 28px;
+  align-items: start;
+}
+
+.field {
+  margin-bottom: 22px;
+  max-width: 440px;
+}
+
+label {
+  display: block;
+  font-weight: 700;
+  font-size: 14.5px;
+  margin-bottom: 3px;
+}
+
+.help {
+  color: var(--muted);
+  font-size: 13px;
+  margin: 0 0 8px;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+input {
+  width: 150px;
+  background: var(--panel);
+  border: 1px solid #24473a;
+  color: var(--text);
+  border-radius: 8px;
+  padding: 9px 12px;
+  font: inherit;
+  font-size: 15px;
+  font-variant-numeric: tabular-nums;
+
+  &:focus {
+    border-color: var(--mint);
+    outline: none;
+  }
+
+  &.bad {
+    border-color: var(--rose);
+  }
+}
+
+.range {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.err {
+  color: var(--rose);
+  font-size: 13px;
+  margin-top: 6px;
+  min-height: 18px;
+}
+
+.actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin-top: 8px;
+  flex-wrap: wrap;
+}
+
+.btn {
+  border: 1px solid #2c5a47;
+  background: transparent;
+  color: var(--text);
+  padding: 9px 18px;
+  border-radius: 8px;
+  font-weight: 600;
+
+  &:hover:not(:disabled) {
+    background: #12291f;
+  }
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+}
+
+.btn-primary {
+  background: var(--moss);
+  border-color: #2a8a60;
+}
+
+.toast {
+  margin-top: 16px;
+  padding: 11px 14px;
+  border-radius: 10px;
+  background: #0f2b20;
+  border: 1px solid #2a8a60;
+  font-size: 13.5px;
+}
+
+.side {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 18px;
+
+  h3 {
+    margin: 0 0 12px;
+    font-size: 14.5px;
+  }
+}
+
+.note {
+  color: var(--muted);
+  font-size: 13px;
+  margin: 12px 0 0;
+}
+
+.cmp {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13.5px;
+
+  th {
+    color: var(--muted);
+    font-weight: 600;
+    text-align: right;
+    padding: 6px 0;
+    font-size: 12.5px;
+  }
+
+  td {
+    padding: 7px 0;
+    text-align: right;
+    border-top: 1px solid var(--line);
+
+    &.changed {
+      color: var(--mint);
+      font-weight: 700;
+    }
+  }
+
+  th:first-child,
+  td:first-child {
+    text-align: left;
+  }
+
+  tr.rate td {
+    font-weight: 700;
+  }
+}

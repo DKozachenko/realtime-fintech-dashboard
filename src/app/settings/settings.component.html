@@ -1,1 +1,72 @@
-<h1>Producer settings</h1>
+<section class="band">
+  <h1>Producer settings</h1>
+  <span class="st">
+    <app-status-indicator [status]="producer.status()" /> · run #{{ producer.runId() }}
+  </span>
+</section>
+
+<div class="body">
+  <form [formGroup]="form" novalidate (ngSubmit)="apply()">
+    @for (field of fields; track field.key) {
+      <div class="field">
+        <label [for]="field.key">{{ field.label }}</label>
+        <p class="help">{{ field.help }}</p>
+        <div class="row">
+          <input
+            [id]="field.key"
+            [formControlName]="field.key"
+            inputmode="numeric"
+            autocomplete="off"
+            [class.bad]="visibleErrors()[field.key]"
+            [attr.aria-invalid]="visibleErrors()[field.key] ? 'true' : null"
+            [attr.aria-describedby]="visibleErrors()[field.key] ? field.errorId : null"
+            (blur)="touch(field.key)"
+          />
+          <span class="range">{{ field.range }}</span>
+        </div>
+        <div class="err" [id]="field.errorId" aria-live="polite">{{ visibleErrors()[field.key] }}</div>
+      </div>
+    }
+
+    <div class="actions">
+      <button
+        type="submit"
+        class="btn btn-primary"
+        [disabled]="!canApply()"
+        [attr.title]="canApply() ? null : 'Change a setting to apply it'"
+      >
+        Apply
+      </button>
+      <button type="button" class="btn" (click)="reset()">Reset to defaults</button>
+    </div>
+
+    <div class="toast-slot" role="status">
+      @if (confirmation(); as message) {
+        <div class="toast">{{ message }}</div>
+      }
+    </div>
+  </form>
+
+  <aside class="side">
+    <h3>What Apply will change</h3>
+    <table class="cmp">
+      <thead>
+        <tr>
+          <th></th>
+          <th>Active run</th>
+          <th>After Apply</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (row of comparison(); track row.label) {
+          <tr [class.rate]="$last">
+            <td>{{ row.label }}</td>
+            <td>{{ row.active }}</td>
+            <td [class.changed]="row.changed">{{ row.next }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+    <p class="note">Apply starts a new run: values and totals on the dashboard reset to zero.</p>
+  </aside>
+</div>
