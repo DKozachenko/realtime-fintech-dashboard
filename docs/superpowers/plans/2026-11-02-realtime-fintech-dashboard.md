@@ -355,7 +355,7 @@ src/
   // testing/fake-worker.ts
   export class FakeWorker implements WorkerLike { sent: WorkerCommand[]; terminated: boolean; emit(event: WorkerEvent): void; fail(message: string): void; }
   ```
-  Поведение — спека §5.5 (runId начинается с 1; Apply в `error` = retry с новыми настройками; очистка через `DestroyRef`).
+  Поведение — спека §5.5 (runId начинается с 1; Apply в `error` = retry с новыми настройками; очистка через `ngOnDestroy`).
 
 - [ ] **Step 1: Тесты** (factory возвращает новый `FakeWorker` на каждый вызов; `LoggerService` — spy).
   - `starts run 1 with defaults`: отправлен `start {runId: 1, settings: DEFAULT_SETTINGS}`; `status` = initializing; `rows` = `emptyRows(5)`; `tradesCounted` 0.
