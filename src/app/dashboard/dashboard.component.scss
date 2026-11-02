@@ -1,0 +1,200 @@
+:host {
+  display: block;
+}
+
+.band {
+  background: var(--moss);
+  padding: 22px 24px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 18px;
+  align-items: center;
+}
+
+h1 {
+  margin: 0 0 6px;
+  font-size: 24px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+
+.stats {
+  display: flex;
+  gap: 26px;
+  font-size: 13px;
+  color: #cfe8dc;
+  flex-wrap: wrap;
+
+  b {
+    display: block;
+    color: #fff;
+    font-size: 17px;
+    font-weight: 700;
+  }
+}
+
+.btn {
+  border: 1px solid #2c5a47;
+  background: transparent;
+  color: var(--text);
+  padding: 7px 16px;
+  border-radius: 8px;
+  font-weight: 600;
+
+  &:hover:not(:disabled) {
+    background: #12291f;
+  }
+
+  &:disabled {
+    opacity: 0.45;
+    cursor: default;
+  }
+}
+
+.band .btn {
+  background: rgba(6, 17, 13, 0.35);
+  border-color: rgba(255, 255, 255, 0.25);
+}
+
+.banner {
+  margin: 14px 16px 0;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: #2a1216;
+  border: 1px solid #5a2a32;
+  color: #f5c9cf;
+  font-size: 13.5px;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.tablewrap {
+  padding: 6px 8px 12px;
+  overflow-x: auto;
+}
+
+// Fixed column widths, so the layout does not shift when "—" placeholders turn into numbers.
+table {
+  width: 100%;
+  min-width: 860px;
+  table-layout: fixed;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.c-sym {
+  width: 12%;
+}
+
+.c-price,
+.c-vwap {
+  width: 17%;
+}
+
+.c-spread {
+  width: 12%;
+}
+
+.c-volume {
+  width: 18%;
+}
+
+.c-imb {
+  width: 24%;
+}
+
+th {
+  font-weight: 600;
+  color: var(--muted);
+  font-size: 12.5px;
+  padding: 10px 16px;
+  text-align: right;
+  border-bottom: 1px solid var(--line);
+}
+
+td {
+  padding: 11px 16px;
+  border-bottom: 1px solid var(--line);
+}
+
+tr:last-child td {
+  border-bottom: none;
+}
+
+th:first-child,
+td:first-child {
+  text-align: left;
+}
+
+.num {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.sym {
+  font-weight: 800;
+  letter-spacing: 0.06em;
+}
+
+.na {
+  color: var(--muted);
+}
+
+// Last price coloured by its last move (PriceTrendDirective). The transition is a bit shorter
+// than the fastest possible snapshot interval (~167 ms), so a colour change always completes.
+.price {
+  transition: color 150ms ease-out;
+
+  &.up {
+    color: var(--mint);
+  }
+
+  &.down {
+    color: var(--rose);
+  }
+}
+
+.imb {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.bar {
+  width: 84px;
+  height: 6px;
+  border-radius: 3px;
+  background: #173126;
+  position: relative;
+
+  &::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: -3px;
+    width: 1px;
+    height: 12px;
+    background: #3a6151;
+  }
+
+  // The fill starts at the centre and is scaled by the imbalance:
+  // a negative value flips it to the left, so no geometry is computed in TypeScript.
+  i {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 50%;
+    height: 100%;
+    border-radius: 3px;
+    background: var(--rose);
+    transform-origin: left center;
+    transform: scaleX(var(--imbalance));
+
+    &.pos {
+      background: var(--mint);
+    }
+  }
+}

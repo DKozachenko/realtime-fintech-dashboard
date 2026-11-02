@@ -1,1 +1,67 @@
-<h1>Live market</h1>
+<section class="band">
+  <div>
+    <h1>Live market</h1>
+    <div class="stats">
+      <span>Status<b><app-status-indicator [status]="producer.status()" /></b></span>
+      <span>Run<b>#{{ producer.runId() }}</b></span>
+      <span>Nominal rate<b>{{ rate() | number: '1.0-1' }} / s</b></span>
+      <span>Trades counted<b>{{ producer.tradesCounted() | number }}</b></span>
+    </div>
+  </div>
+  <button type="button" class="btn" [disabled]="!canToggle()" (click)="toggle()">
+    {{ producer.status() === 'paused' ? 'Resume' : 'Pause' }}
+  </button>
+</section>
+
+@if (producer.status() === 'error') {
+  <div class="banner" role="alert">
+    <span>{{ producer.errorMessage() }} Retry to start a new run.</span>
+    <button type="button" class="btn" (click)="producer.retry()">Retry</button>
+  </div>
+}
+
+<div class="tablewrap">
+  <table>
+    <colgroup>
+      <col class="c-sym" />
+      <col class="c-price" />
+      <col class="c-spread" />
+      <col class="c-volume" />
+      <col class="c-vwap" />
+      <col class="c-imb" />
+    </colgroup>
+    <thead>
+      <tr>
+        <th>Instrument</th>
+        <th>Last price</th>
+        <th>Spread</th>
+        <th>Volume</th>
+        <th>VWAP</th>
+        <th>Imbalance</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (row of producer.rows(); track $index) {
+        <tr>
+          <td class="sym">{{ $index | instrument }}</td>
+          <td class="num price" [class.na]="row.lastPriceCents === null" [appPriceTrend]="row.lastPriceCents">
+            {{ row.lastPriceCents | cents }}
+          </td>
+          <td class="num" [class.na]="row.spreadCents === null">{{ row.spreadCents | cents }}</td>
+          <td class="num">{{ row.volume | number }}</td>
+          <td class="num" [class.na]="row.vwapCents === null">{{ row.vwapCents | cents }}</td>
+          <td class="num">
+            <div class="imb">
+              <span [class.na]="row.imbalance === null">{{ row.imbalance | imbalance }}</span>
+              <span class="bar">
+                @if (row.imbalance !== null) {
+                  <i [class.pos]="row.imbalance >= 0" [style.--imbalance]="row.imbalance"></i>
+                }
+              </span>
+            </div>
+          </td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>
