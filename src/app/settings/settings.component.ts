@@ -98,10 +98,23 @@ export class SettingsComponent {
     return visible;
   });
 
+  /** ARIA attributes per field: only a field that shows an error is marked invalid and linked to it. */
+  protected readonly fieldAria = computed(() => {
+    const visible = this.visibleErrors();
+    const aria = <Record<Key, { invalid: 'true' | null; describedBy: string | null }>>{};
+    for (const { key, errorId } of this.fields) {
+      const shown = visible[key] !== null;
+      aria[key] = { invalid: shown ? 'true' : null, describedBy: shown ? errorId : null };
+    }
+    return aria;
+  });
+
   protected readonly canApply = computed(() => {
     const parsed = this.parsed();
     return parsed !== null && !sameSettings(parsed, this.producer.activeSettings());
   });
+
+  protected readonly applyHint = computed(() => (this.canApply() ? null : 'Change a setting to apply it'));
 
   protected readonly comparison = computed<ComparisonRow[]>(() => {
     const active = this.producer.activeSettings();

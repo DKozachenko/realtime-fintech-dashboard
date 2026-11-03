@@ -44,6 +44,21 @@ describe('MetricsAggregator', () => {
     expect(agg.snapshot().rows[0].imbalance).toBeNull();
   });
 
+  it('vwap is null when nothing was traded', () => {
+    const agg = new MetricsAggregator(1);
+    agg.apply(encodeUpdates([update({ tradeQuantity: 0 })]));
+    const row = agg.snapshot().rows[0];
+    expect(row.lastPriceCents).toBe(10000);
+    expect(row.volume).toBe(0);
+    expect(row.vwapCents).toBeNull();
+  });
+
+  it('imbalance is -1 when only the ask side has quantity', () => {
+    const agg = new MetricsAggregator(1);
+    agg.apply(encodeUpdates([update({ bidQuantity: 0, askQuantity: 500 })]));
+    expect(agg.snapshot().rows[0].imbalance).toBe(-1);
+  });
+
   it('isolates instruments', () => {
     const agg = new MetricsAggregator(2);
     agg.apply(encodeUpdates([update({ instrument: 0 })]));

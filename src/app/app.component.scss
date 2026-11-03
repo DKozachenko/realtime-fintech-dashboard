@@ -36,6 +36,16 @@
   place-items: center;
   color: var(--muted);
   text-decoration: none;
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease,
+    box-shadow 0.15s ease;
+
+  &:hover:not(.on) {
+    background: rgb(18 41 31 / 55%);
+    color: var(--text);
+    box-shadow: 0 2px 8px rgb(0 0 0 / 25%);
+  }
 
   &.on {
     background: #12291f;

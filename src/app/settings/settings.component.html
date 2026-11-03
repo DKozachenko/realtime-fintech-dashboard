@@ -19,8 +19,8 @@
             [id]="field.key"
             [formControlName]="field.key"
             [class.bad]="visibleErrors()[field.key]"
-            [attr.aria-invalid]="visibleErrors()[field.key] ? 'true' : null"
-            [attr.aria-describedby]="visibleErrors()[field.key] ? field.errorId : null"
+            [attr.aria-invalid]="fieldAria()[field.key].invalid"
+            [attr.aria-describedby]="fieldAria()[field.key].describedBy"
             (blur)="touch(field.key)"
           />
           <span class="range">{{ field.range }}</span>
@@ -30,14 +30,7 @@
     }
 
     <div class="actions">
-      <button
-        type="submit"
-        class="btn btn-primary"
-        [disabled]="!canApply()"
-        [attr.title]="canApply() ? null : 'Change a setting to apply it'"
-      >
-        Apply
-      </button>
+      <button type="submit" class="btn btn-primary" [disabled]="!canApply()" [attr.title]="applyHint()">Apply</button>
       <button type="button" class="btn" (click)="reset()">Reset to defaults</button>
     </div>
 

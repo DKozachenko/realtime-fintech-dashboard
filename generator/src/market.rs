@@ -58,14 +58,14 @@ impl Market {
         Ok(Market { rng, instruments, buffer: Vec::with_capacity(MAX_BATCH_SIZE as usize * FIELDS_PER_UPDATE) })
     }
 
-    /// Returns `size * FIELDS_PER_UPDATE` values:
-    /// `[index, price, tradeQty, bid, ask, bidQty, askQty]` per update.
     /// Pointer to the output buffer. Capacity is reserved up front, so it stays
     /// stable across batches.
     pub fn batch_ptr(&self) -> *const u32 {
         self.buffer.as_ptr()
     }
 
+    /// Returns `size * FIELDS_PER_UPDATE` values:
+    /// `[index, price, tradeQty, bid, ask, bidQty, askQty]` per update.
     pub fn next_batch(&mut self, size: u32) -> Result<&[u32], GeneratorError> {
         if !(1..=MAX_BATCH_SIZE).contains(&size) {
             return Err(GeneratorError::BatchSize(size));
@@ -105,7 +105,7 @@ impl Market {
 /// Applies a step in `0..=2*BOOK_QTY_STEP` as a signed move of `-STEP..=+STEP`,
 /// saturating at zero.
 fn step_qty(qty: u32, delta: u32) -> u32 {
-    (qty + delta).saturating_sub(BOOK_QTY_STEP)
+    qty.saturating_add(delta).saturating_sub(BOOK_QTY_STEP)
 }
 
 /// Uniform integer in `lo..=hi`.
@@ -153,15 +153,23 @@ mod tests {
     #[test]
     fn generated_values_are_valid() {
         let mut m = Market::new(50, 42).unwrap();
+        let mut updates_so_far = 0;
         for _ in 0..100 {
             for u in m.next_batch(1000).unwrap().chunks(F) {
+                updates_so_far += 1;
                 let (index, price, qty, bid, ask) = (u[0], u[1], u[2], u[3], u[4]);
+                let (bid_qty, ask_qty) = (u[5], u[6]);
                 assert!(index < 50);
                 assert!(price > 0);
                 assert!(bid >= 1);
                 assert!(bid < ask);
                 assert!(price == bid || price == ask);
                 assert!((TRADE_QTY_MIN..=TRADE_QTY_MAX).contains(&qty));
+                // Book quantities are non-negative by type; each update moves one by at most
+                // BOOK_QTY_STEP, so they never exceed the start maximum plus that many steps.
+                let bound = BOOK_QTY_START_MAX + updates_so_far * BOOK_QTY_STEP;
+                assert!(bid_qty <= bound);
+                assert!(ask_qty <= bound);
             }
         }
     }
