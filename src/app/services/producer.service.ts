@@ -114,7 +114,7 @@ export class ProducerService implements OnDestroy {
     };
     worker.onerror = (e) => {
       if (worker === this.worker) {
-        this.fail('worker', e.message);
+        this.fail('worker', e.message || 'The producer worker failed to start.');
       }
     };
   }
@@ -150,6 +150,11 @@ export class ProducerService implements OnDestroy {
       case 'error':
         if (event.runId === null || event.runId === this.runId()) {
           this.fail(event.source, event.message);
+        } else {
+          this.logger.warn('worker', 'Dropped error from a previous run', {
+            runId: event.runId,
+            message: event.message,
+          });
         }
         break;
     }

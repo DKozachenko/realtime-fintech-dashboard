@@ -116,9 +116,10 @@ describe('DashboardComponent', () => {
   it('shows an error banner with retry', async () => {
     expect(el.querySelector('.banner')).toBeNull();
     fake.status.set('error');
-    fake.errorMessage.set('Generator failed to load.');
+    fake.errorMessage.set('Generator stopped: unreachable');
     await fixture.whenStable();
-    expect(el.querySelector('.banner')!.textContent).toContain('Generator failed to load. Retry to start a new run.');
+    expect(el.querySelector('.banner-message')!.textContent).toBe('Generator stopped: unreachable');
+    expect(el.querySelector('.banner-hint')!.textContent).toBe('Retry to start a new run.');
     button('Retry').click();
     expect(fake.retry).toHaveBeenCalled();
   });

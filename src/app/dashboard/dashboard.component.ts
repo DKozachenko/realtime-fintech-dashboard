@@ -24,6 +24,8 @@ export class DashboardComponent {
     return status === 'running' || status === 'paused';
   });
 
+  protected readonly toggleLabel = computed(() => (this.producer.status() === 'paused' ? 'Resume' : 'Pause'));
+
   protected toggle(): void {
     if (this.producer.status() === 'paused') {
       this.producer.resume();

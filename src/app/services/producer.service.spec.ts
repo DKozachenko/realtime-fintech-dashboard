@@ -130,6 +130,27 @@ describe('ProducerService', () => {
     expect(logger.error).toHaveBeenCalledWith('worker', 'script failed', { runId: 1 });
   });
 
+  it('worker onerror without a message falls back to a generic text', () => {
+    const service = create();
+    workers[0].onerror?.(<ErrorEvent>new Event('error'));
+    expect(service.status()).toBe('error');
+    expect(service.errorMessage()).toBe('The producer worker failed to start.');
+    expect(logger.error).toHaveBeenCalledWith('worker', 'The producer worker failed to start.', { runId: 1 });
+  });
+
+  it('logs a warning when an error from a previous run is dropped', () => {
+    const service = create();
+    workers[0].emit({ type: 'ready' });
+    service.apply(newSettings);
+    workers[0].emit({ type: 'error', runId: 1, source: 'wasm', message: 'old failure' });
+    expect(service.status()).toBe('running');
+    expect(logger.error).not.toHaveBeenCalled();
+    expect(logger.warn).toHaveBeenCalledWith('worker', 'Dropped error from a previous run', {
+      runId: 1,
+      message: 'old failure',
+    });
+  });
+
   it('retry replaces the worker', () => {
     const service = create();
     service.apply(newSettings);

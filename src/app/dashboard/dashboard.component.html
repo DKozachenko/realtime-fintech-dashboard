@@ -21,13 +21,16 @@
     </div>
   </div>
   <button type="button" class="btn" [disabled]="!canToggle()" (click)="toggle()">
-    {{ producer.status() === 'paused' ? 'Resume' : 'Pause' }}
+    {{ toggleLabel() }}
   </button>
 </section>
 
 @if (producer.status() === 'error') {
   <div class="banner" role="alert">
-    <span>{{ producer.errorMessage() }} Retry to start a new run.</span>
+    <div>
+      <div class="banner-message">{{ producer.errorMessage() }}</div>
+      <div class="banner-hint">Retry to start a new run.</div>
+    </div>
     <button type="button" class="btn" (click)="producer.retry()">Retry</button>
   </div>
 }
