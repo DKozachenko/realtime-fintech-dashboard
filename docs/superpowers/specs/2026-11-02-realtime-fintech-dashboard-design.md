@@ -78,7 +78,7 @@ ProducerService (root, один) ─команды─▶ ProducerEngine:        
   activeSettings, runId,               таймер батчей, runId,  ─next_batch(n)─▶ состояние инструментов,
   status, snapshot (signals)           агрегатор метрик       ◀─Uint32Array──  rand_pcg(seed)
         ▲                              │
-        └──────── снимок (≤ 50 строк, ≤ 4 раз/с) ◀┘
+        └──────── снимок (≤ 50 строк, ≈4 раза/с) ◀┘
 Dashboard / Settings (OnPush, pipes только форматируют)
 ```
 
@@ -171,7 +171,7 @@ N = max(1, round(DISPLAY_INTERVAL_MS / batchIntervalMs)),  DISPLAY_INTERVAL_MS =
 
 ### 5.6 LoggerService
 
-Абстракция: `log/warn/error(source, message, context)`, где `source ∈ app | worker | wasm`, контекст включает `runId`. Реализация сейчас — консоль; позже можно подменить на Sentry без правок остального кода. Ошибки воркера пересылаются сообщением и логируются в Angular.
+Абстракция: `info/warn/error(source, message, context)`, где `source ∈ app | worker | wasm`, контекст включает `runId`. Реализация сейчас — консоль; позже можно подменить на Sentry без правок остального кода. Ошибки воркера пересылаются сообщением и логируются в Angular.
 
 ## 6. Генератор (Rust → Wasm)
 
@@ -215,12 +215,12 @@ generator.free()                          освобождение (Apply / disp
 - таблица: Instrument | Last price | Spread | Volume | VWAP | Imbalance; колонки фиксированной ширины;
 - last price окрашен по последнему движению (рост — мятный, падение — розовый, переход 150 мс), без вспышки — DECISIONS D24;
 - цены — валюта USD, 2 знака (`$101.50`), округление только в pipe; объём — целое с разделителями; imbalance — со знаком, 2 знака (`+0.20`) + шкала −1…+1 с риской в нуле (зелёная вправо, розовая влево); нет значения — «—»;
-- ошибка — баннер под плашкой: что сломалось + что делать, кнопка Retry. Пример: «Generator failed to load. … Check that generator_bg.wasm is deployed, then retry.»
+- ошибка — баннер под плашкой: что сломалось + что делать, кнопка Retry. Сообщение и подсказка — две отдельные строки. Пример: «Generator failed to load: <причина>» и ниже приглушённо «Retry to start a new run.»
 
 **Настройки:**
 - плашка «Producer settings» со статусом и номером прогона;
 - слева форма: Instrument count / Updates per batch / Batch interval, ms — у каждого описание, диапазон, поле;
-- валидация (Reactive Forms): обязательно, целое, в диапазоне. Ошибка показывается после ухода с поля или попытки Apply. Тексты: «Enter a value.», «Enter a whole number.», «Must be between 1 and 50.»;
+- валидация (Reactive Forms): обязательно, целое, в диапазоне. Ошибка показывается только после ухода с поля (blur); при невалидной форме Apply неактивна. Тексты: «Enter a value.», «Enter a whole number.», «Must be between 1 and 50.»;
 - **Apply** активна, только если форма валидна **и отличается от `activeSettings`** (сравнение со значениями прогона, не флаг `dirty`); подсказка на неактивной кнопке «Change a setting to apply it»;
 - **Reset to defaults** — возвращает в форму 5 / 100 / 500 (сам прогон не трогает);
 - справа панель «What Apply will change»: Active run vs After Apply по трём настройкам и Nominal rate; изменённые значения подсвечены; подпись «Apply starts a new run: values and totals on the dashboard reset to zero.»;
@@ -233,25 +233,28 @@ generator.free()                          освобождение (Apply / disp
 
 | Задание | Тесты |
 |---|---|
-| Метрики: пример из задания, нулевые знаменатели, изоляция инструментов | агрегатор (Karma): 10×$100 + 30×$102 → last $102, volume 40, VWAP 10150¢; bid 10196 / ask 10200 → spread 4¢; 600/400 → +0.20; volume 0 → VWAP null; 0/0 → imbalance null; обновления ALFA не трогают BETA; пропущенный в батче инструмент сохраняет значения |
+| Метрики: пример из задания, нулевые знаменатели, изоляция инструментов | агрегатор (Karma; читает батч по смещениям `BatchField`, тесты собирают батчи через `encodeUpdates`): 10×$100 + 30×$102 → last $102, volume 40, VWAP 10150¢; bid 10196 / ask 10200 → spread 4¢; 600/400 → +0.20; volume 0 → VWAP null; 0/0 → imbalance null; обновления ALFA не трогают BETA; пропущенный в батче инструмент сохраняет значения |
 | Валидация и сброс при Apply | форма: границы 0/1/50/51 и т. д., дробные, пустые; Apply неактивна при невалидной/неизменённой форме; сервис: Apply → новый runId, пустая таблица, `activeSettings` |
 | Pause/Resume и отбрасывание старого прогона | движок с фейковым таймером: pause останавливает генерацию и сразу шлёт снимок; resume не догоняет и ждёт интервал; итоги сохраняются; start из паузы запускает; сервис игнорирует снимок с прошлым runId |
 | Генератор: размеры батчей, валидные значения | `cargo test`: длина = size × 7 для 1/100/1000; ~100 000 обновлений с фиксированным seed — price > 0, bid < ask, price ∈ {bid, ask}, qty > 0, index < N; цена меняется ограниченным шагом; второй батч продолжает состояние первого; одинаковый seed → одинаковый выход; ошибки на 0/51 и 0/1001 |
-| Плюс | частота снимков: `N` для 50/100/200/500/2000 мс; декодер батча; pipes форматирования |
+| Плюс | частота снимков: `N` для 50/100/200/500/2000 мс; pipes форматирования |
 
-Никаких реальных ожиданий: таймеры подставные (`fakeAsync` или собственный планировщик).
+Никаких реальных ожиданий: таймеры подставные (без zone.js `fakeAsync` недоступен: в воркер-движок внедряется фейковый планировщик).
 
 ## 9. CI/CD (GitHub Actions)
 
 Триггеры: push в `develop`, pull_request, workflow_dispatch.
 
 ```
-cache-deps ─┬─▶ deploy   Rust + wasm-pack → ng build --base-href=/realtime-fintech-dashboard/ → upload-pages-artifact → deploy-pages (только push в develop)
-            ├─▶ test     cargo test + ng test (ChromeHeadless)
-            └─▶ lint     ESLint, stylelint, cargo clippy/fmt — добавляется последним
+cache-deps ─┐
+build-wasm ─┴─▶ deploy   скачать Wasm-артефакт → ng build --base-href=/realtime-fintech-dashboard/ → upload-pages-artifact → deploy-pages (push и workflow_dispatch на develop)
+cache-deps ─┬─▶ test        ng test (ChromeHeadless), Wasm из артефакта build-wasm
+            ├─▶ test-wasm   cargo test
+            ├─▶ lint        ESLint, stylelint
+            └─▶ lint-rust   cargo fmt --check, cargo clippy
 ```
 
-- **Деплой не зависит от тестов** (осознанно: изменения на демо появляются быстрее; красный тест виден отдельно).
+- **Деплой не ждёт тестов** (осознанно: изменения на демо появляются быстрее; красный тест виден отдельно); он ждёт кэш зависимостей и сборку Wasm. Pull request собирается и тестируется, но не деплоится.
 - GitHub Pages: Source = «GitHub Actions», сборка публикуется артефактом, без ветки `gh-pages`; окружение `github-pages` разрешает деплой из `develop` (DECISIONS D20).
 - Node через `actions/setup-node` с `node-version-file: .node-version`; кэш cargo.
 - GitHub Pages отдаёт `.wasm` с `application/wasm`.

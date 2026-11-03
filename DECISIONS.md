@@ -104,7 +104,7 @@ This is Angular 19's default. The task does not prescribe a test framework.
 The rustwasm GitHub organisation is being archived, but wasm-pack moved to a long-time maintainer and still gets releases (0.15.0 in 2026). If it fails, the fallback is `wasm-bindgen-cli`.
 
 ### D19. Deploy does not wait for tests
-In CI, deploy runs right after dependency caching. Tests and linters run in parallel. Every push reaches the live demo as fast as possible, and a failing test still shows up as a red check.
+In CI, deploy waits for dependency caching and the Wasm build, not for tests. Tests and linters run in parallel. "Each push" is read as each push to `develop`, the working branch (plus manual runs on it); pull requests build and test but never deploy. Every push reaches the live demo as fast as possible, and a failing test still shows up as a red check.
 **Trade-off:** broken code can be deployed.
 
 ### D20. GitHub Pages: artifact deploy and a `404.html` fallback
@@ -122,7 +122,8 @@ After any error, whether the worker script failed to load, the `.wasm` failed to
 - **No automatic retry.** A permanent failure, such as a missing `.wasm` file, would otherwise retry forever and flood the logs.
 
 ### D23. Zoneless change detection
-Angular 19's `provideExperimentalZonelessChangeDetection()` instead of Zone.js. State lives in signals and components are OnPush, so change detection runs only when a signal the template reads changes; worker messages no longer trigger app-wide checks through Zone.js patching. Trade-off: the API is experimental in Angular 19 (stable from Angular 20), and tests cannot use `fakeAsync` — timers are injected instead (the worker engine uses a fake scheduler).
+Angular 19's `provideExperimentalZonelessChangeDetection()` instead of Zone.js. State lives in signals and components are OnPush, so change detection runs only when a signal the template reads changes; worker messages no longer trigger app-wide checks through Zone.js patching.
+**Trade-off:** the API is experimental in Angular 19 (stable from Angular 20), and tests cannot use `fakeAsync` — timers are injected instead (the worker engine uses a fake scheduler).
 
 ### D26. Third-party actions are pinned to commit SHAs
 `dtolnay/rust-toolchain`, `Swatinem/rust-cache` and `taiki-e/install-action` are referenced by full commit SHA, with the version in a comment. A tag such as `@v2` or `@stable` can be moved to different code by the action's author, or by whoever takes over their account, and that code would run in the deploy job, which can publish the site. GitHub's own `actions/*` stay on major versions: they come from the same vendor as the runner itself.

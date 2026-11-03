@@ -7,7 +7,7 @@ An Angular dashboard that shows live market metrics for a configurable set of in
 ## Requirements
 
 - Node 22 (see `.node-version`)
-- Rust stable with the `wasm32-unknown-unknown` target
+- Rust stable with the `wasm32-unknown-unknown` target and the `rustfmt` and `clippy` components (used by `npm run lint:rust`)
 - wasm-pack 0.15.1
 - Chrome or Chromium (for the Karma tests)
 
@@ -42,7 +42,7 @@ ProducerService (root, one) ─commands─▶ ProducerEngine:               Gene
   activeSettings, runId,               batch timer, runId,    ─next_batch(n)─▶ instrument state,
   status, rows (signals)               metrics aggregator     ◀─Uint32Array──  rand_pcg(seed)
         ▲                              │
-        └──────── snapshot (≤ 50 rows, ≤ 4 per second) ◀┘
+        └──────── snapshot (≤ 50 rows, about 4 per second) ◀┘
 Dashboard / Settings (OnPush, pipes only format)
 ```
 
